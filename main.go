@@ -13,19 +13,15 @@ func login() {
 	p := Server{
 		Addr:   "127.0.0.1:478",
 		Target: "34.251.172.139:443",
-		ModifyResponse: func(b *[]byte) {
+		ModifyResponse: func(b *[]byte, id string) {
 			packet := string(*b)
-			fmt.Println("[login] server->client: " + packet)
-			fmt.Println(*b)
-			if strings.Contains(packet, "AXK3413389?ag78d352") {
-				fmt.Println("bibly packet transform!")
-				by := bytes.NewBufferString("AYK127.0.0.1:5555;8d352")
-				//by := bytes.NewBufferString("AXK3413389?ag78d352")
-				by.Write([]byte{0})
+			//fmt.Println("[login] server->client: " + packet)
+			if strings.HasPrefix(packet, "AXK3413389?ag7") {
+				token := packet[14:]
+				fmt.Println("bibly packet transform!,  token=" + token)
+				by := bytes.NewBufferString("AYK127.0.0.1:5555;" + token)
 				*b = by.Bytes()
-
-				fmt.Println(*b)
-
+				//fmt.Println(*b)
 			}
 		},
 	}
@@ -37,6 +33,36 @@ func login() {
 
 }
 
+func extractPackets(b* []byte) [][]byte {
+	var packets [][]byte
+	current := bytes.NewBuffer([]byte{})
+
+	by := bytes.NewBuffer(*b)
+
+	for {
+		bi, err := by.ReadByte()
+		if err != nil {
+			return packets
+		}
+		current.WriteByte(bi)
+		if bi == 0 {
+			packets = append(packets, current.Bytes())
+			current = bytes.NewBuffer([]byte{})
+		}
+	}
+}
+
+func processPerso(packet string) {
+	splited := strings.Split(packet, "|")
+	pr := splited[2]
+
+	params := strings.Split(pr, ";")
+	name := params[1]
+
+	fmt.Println("Personnage " + name)
+}
+
+
 func game() {
 
 	fmt.Print("Hello world\n");
@@ -44,10 +70,26 @@ func game() {
 	p := Server{
 		Addr:   "127.0.0.1:5555",
 		Target: "52.19.56.159:443",
-		ModifyResponse: func(b *[]byte) {
+		ModifyResponse: func(b *[]byte, id string) {
 			packet := string(*b)
 
 			fmt.Println("[game] server->client: " + packet)
+			//fmt.Println(*b)
+
+			packets := extractPackets(b)
+			for _, p := range packets {
+				if strings.HasPrefix(string(p), "ALK") {
+					processPerso(string(p))
+				}
+			}
+
+		},
+		ModifyRequest: func(b *[]byte, id string) {
+			packet := string(*b)
+
+			fmt.Println("[game] client->server: " + packet)
+
+			//if (strings.HasPrefix(packet, ""))
 		},
 	}
 

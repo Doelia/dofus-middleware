@@ -17,10 +17,10 @@ type Server struct {
 	Target string
 
 	// ModifyRequest is an optional function that modifies the request from a client to the target server.
-	ModifyRequest func(b *[]byte)
+	ModifyRequest func(b *[]byte, id string)
 
 	// ModifyResponse is an optional function that modifies the response from the target server.
-	ModifyResponse func(b *[]byte)
+	ModifyResponse func(b *[]byte, id string)
 
 	// TLS configuration to listen on.
 	TLSConfig *tls.Config
@@ -53,6 +53,7 @@ func (s *Server) serve(ln net.Listener) error {
 	}
 }
 
+
 func (s *Server) handleConn(conn net.Conn) {
 
 	fmt.Println("handleConn")
@@ -67,7 +68,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 
 	// write to dst what it reads from src
-	var pipe = func(src, dst net.Conn, filter func(b *[]byte), sens string) {
+	var pipe = func(src, dst net.Conn, filter func(b *[]byte, id string), sens string) {
 		defer func() {
 			conn.Close()
 			rconn.Close()
@@ -75,7 +76,6 @@ func (s *Server) handleConn(conn net.Conn) {
 
 		buff := make([]byte, 65535)
 		for {
-
 			n, err := src.Read(buff)
 
 			if err != nil {
@@ -84,8 +84,16 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 			b := buff[:n]
 
+			var id string
+			if sens == "in" {
+				id = src.RemoteAddr().String()
+			} else {
+				id = dst.RemoteAddr().String()
+			}
+
+
 			if filter != nil {
-				filter(&b)
+				filter(&b, id)
 			}
 
 			_, err = dst.Write(b)
@@ -96,8 +104,8 @@ func (s *Server) handleConn(conn net.Conn) {
 		}
 	}
 
-	go pipe(conn, rconn, s.ModifyRequest, "->")
-	go pipe(rconn, conn, s.ModifyResponse, "<-")
+	go pipe(conn, rconn, s.ModifyRequest, "in")
+	go pipe(rconn, conn, s.ModifyResponse, "out")
 
 	fmt.Println("pipe started")
 }
