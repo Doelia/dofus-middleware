@@ -7,6 +7,7 @@ import (
 	"net"
 )
 
+
 // Server is a TCP server that takes an incoming request and sends it to another
 // server, proxying the response back to the client.
 type Server struct {

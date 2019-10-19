@@ -3,8 +3,26 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os/exec"
 	"strings"
 )
+
+var characters []Character
+
+type Character struct {
+	Name string
+	IdCharDofus string
+	Id string
+}
+
+func getChararacter(id string) *Character {
+	for _, c := range characters {
+		if c.Id == id {
+			return &c
+		}
+	}
+	return nil
+}
 
 func login() {
 
@@ -52,7 +70,7 @@ func extractPackets(b* []byte) [][]byte {
 	}
 }
 
-func processPerso(packet string) {
+func processPerso(id string, packet string) {
 	splited := strings.Split(packet, "|")
 	pr := splited[2]
 
@@ -60,8 +78,25 @@ func processPerso(packet string) {
 	name := params[1]
 
 	fmt.Println("Personnage " + name)
+	characters = append(characters, Character{
+		Id: id,
+		Name: name,
+		IdCharDofus: params[0],
+	})
 }
 
+func startTurn(id string, packet string) {
+	splited := strings.Split(packet[3:], "|")
+	idCharTurn := splited[0]
+	char := getChararacter(id)
+	if char.IdCharDofus == idCharTurn {
+		fmt.Println("Start turn of " + char.Name)
+
+		cmd := "/Users/stephane/Documents/dev/perso/dofus/" + char.Name + ".sh"
+		out := exec.Command("/bin/bash", cmd)
+		out.Run()
+	}
+}
 
 func game() {
 
@@ -71,15 +106,17 @@ func game() {
 		Addr:   "127.0.0.1:5555",
 		Target: "52.19.56.159:443",
 		ModifyResponse: func(b *[]byte, id string) {
-			packet := string(*b)
-
-			fmt.Println("[game] server->client: " + packet)
 			//fmt.Println(*b)
 
 			packets := extractPackets(b)
 			for _, p := range packets {
+				fmt.Println("[game] server->client: " + string(p))
 				if strings.HasPrefix(string(p), "ALK") {
-					processPerso(string(p))
+					processPerso(id, string(p))
+				}
+
+				if strings.HasPrefix(string(p), "GTS") {
+					startTurn(id, string(p))
 				}
 			}
 
