@@ -20,7 +20,7 @@ type Character struct {
 
 func isOneOfMyCharacter(name string) bool {
 	for _, c := range Characters {
-		if c.Name == name {
+		if c.Name == name || c.IdCharDofus == name {
 			return true
 		}
 	}
@@ -129,6 +129,27 @@ func popupInvitation(id string, packet string) {
 	}
 }
 
+//  ERK90069329|90069284|1
+func popupExchange(id string, packet string) {
+	splited := strings.Split(packet[3:], "|")
+	inviter := splited[0]
+	invited := splited[1]
+
+	char := getChararacter(id)
+	fmt.Println(inviter + " " + invited + " " + char.Name)
+
+	// Im invited
+	if invited == char.IdCharDofus {
+		if isOneOfMyCharacter(inviter) {
+			fmt.Println("Im ("+ invited +") invited to exchange with "+ inviter)
+			packetConfirm := bytes.NewBufferString("EA")
+			packetConfirm.WriteByte(0)
+			packetConfirm.WriteString("\n")
+			_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+		}
+	}
+}
+
 func game() {
 
 	fmt.Print("Hello world\n")
@@ -160,6 +181,10 @@ func game() {
 
 				if strings.HasPrefix(string(p), "PIK") {
 					popupInvitation(id, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "ERK") {
+					popupExchange(id, strPacket)
 				}
 			}
 
