@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 var Characters []Character
@@ -27,9 +30,9 @@ func isOneOfMyCharacter(name string) bool {
 	return false
 }
 
-func getChararacter(id string) *Character {
+func getChararacter(search string) *Character {
 	for i, c := range Characters {
-		if c.Id == id {
+		if c.Id == search || c.Name == search {
 			return &Characters[i]
 		}
 	}
@@ -150,6 +153,25 @@ func popupExchange(id string, packet string) {
 	}
 }
 
+func moveChar(char Character, packet string, counter int) {
+	fmt.Println("send move " + packet + " to " + char.Name)
+	time.Sleep(time.Duration(counter * 200) * time.Millisecond)
+	packetConfirm := bytes.NewBufferString(packet)
+	packetConfirm.WriteByte(0)
+	packetConfirm.WriteString("\n")
+	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+}
+
+func outMoveCharater(id string, packet string) {
+	counter := 0
+	for _, c := range Characters {
+		if c.Name != "" && c.Id != id {
+			counter := counter + 1
+			go moveChar(c, packet, counter)
+		}
+	}
+}
+
 func game() {
 
 	fmt.Print("Hello world\n")
@@ -190,12 +212,27 @@ func game() {
 
 		},
 		ModifyRequest: func(b *[]byte, id string) {
-			strPacket := string(*b)
-			strPacket = strPacket[:len(strPacket) - 1] // Remove last '0' byte
 
-			char := getChararacter(id)
-			if char != nil {
-				fmt.Println("[" + char.Name + "] client->server: " + strPacket)
+			bytess := make([]byte, len(*b))
+			copy(bytess, *b)
+			bytess = bytess[:len(bytess) - 1] // Remove trailing '\n' byte
+			bytess[len(bytess) - 1] = 0
+
+			packets := extractPackets(&bytess)
+			for _, p := range packets {
+
+				strPacket := string(p)
+				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
+
+				char := getChararacter(id)
+				if char != nil {
+					fmt.Println("[" + char.Name + "] client->server: " + strPacket)
+				}
+
+				//
+				if strings.HasPrefix(strPacket, "GA001") {
+					outMoveCharater(id, strPacket)
+				}
 			}
 
 			//if (strings.HasPrefix(packet, ""))
@@ -209,7 +246,28 @@ func game() {
 
 }
 
+func inputKeyboard() {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("Enter your command: ")
+		command, _ := reader.ReadString('\n')
+		fmt.Print("Command " + command)
+
+		if command == "GO\n" {
+			char := getChararacter("Doelia")
+			fmt.Println("write " + char.Name)
+
+			packetConfirm := bytes.NewBufferString("GA001bdVadW")
+			packetConfirm.WriteByte(0)
+			packetConfirm.WriteString("\n")
+			n, _ := char.ConnServer.Write(packetConfirm.Bytes())
+			fmt.Println(n)
+		}
+	}
+}
+
 func main() {
 	go login()
-	game()
+	go game()
+	inputKeyboard()
 }
