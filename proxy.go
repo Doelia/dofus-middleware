@@ -71,8 +71,8 @@ func (s *Server) handleConn(conn net.Conn) {
 	// write to dst what it reads from src
 	var pipe = func(src, dst net.Conn, filter func(b *[]byte, id string), sens string) {
 		defer func() {
-			conn.Close()
-			rconn.Close()
+			_ = conn.Close()
+			_ = rconn.Close()
 		}()
 
 		buff := make([]byte, 65535)
@@ -92,7 +92,6 @@ func (s *Server) handleConn(conn net.Conn) {
 				id = dst.RemoteAddr().String()
 			}
 
-
 			if filter != nil {
 				filter(&b, id)
 			}
@@ -104,6 +103,13 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 		}
 	}
+
+	fmt.Println("Add character")
+	Characters = append(Characters, Character{
+		Id: conn.RemoteAddr().String(),
+		ConnClient: conn,
+		ConnServer: rconn,
+	})
 
 	go pipe(conn, rconn, s.ModifyRequest, "in")
 	go pipe(rconn, conn, s.ModifyResponse, "out")

@@ -3,22 +3,34 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"os/exec"
 	"strings"
 )
 
-var characters []Character
+var Characters []Character
 
 type Character struct {
 	Name string
 	IdCharDofus string
 	Id string
+	ConnClient net.Conn
+	ConnServer net.Conn
+}
+
+func isOneOfMyCharacter(name string) bool {
+	for _, c := range Characters {
+		if c.Name == name {
+			return true
+		}
+	}
+	return false
 }
 
 func getChararacter(id string) *Character {
-	for _, c := range characters {
+	for i, c := range Characters {
 		if c.Id == id {
-			return &c
+			return &Characters[i]
 		}
 	}
 	return nil
@@ -26,7 +38,7 @@ func getChararacter(id string) *Character {
 
 func login() {
 
-	fmt.Print("Hello world\n");
+	fmt.Print("Hello world\n")
 
 	p := Server{
 		Addr:   "127.0.0.1:478",
@@ -78,11 +90,9 @@ func processPerso(id string, packet string) {
 	name := params[1]
 
 	fmt.Println("Personnage " + name)
-	characters = append(characters, Character{
-		Id: id,
-		Name: name,
-		IdCharDofus: params[0],
-	})
+	var char = getChararacter(id)
+	char.Name = name
+	char.IdCharDofus = params[0]
 }
 
 func startTurn(id string, packet string) {
@@ -94,13 +104,34 @@ func startTurn(id string, packet string) {
 
 		cmd := "/Users/stephane/Documents/dev/perso/dofus/" + char.Name + ".sh"
 		out := exec.Command("/bin/bash", cmd)
-		out.Run()
+		_ = out.Run()
+	}
+}
+
+// PIKDoelia|Lotahi
+func popupInvitation(id string, packet string) {
+	splited := strings.Split(packet[3:], "|")
+	inviter := splited[0]
+	invited := splited[1]
+
+	char := getChararacter(id)
+	fmt.Println(inviter + " " + invited + " " + char.Name)
+
+	// Im invited
+	if invited == char.Name {
+		if isOneOfMyCharacter(inviter) {
+			fmt.Println("Im ("+ invited +") invited to join "+ inviter +" group's")
+			packetConfirm := bytes.NewBufferString("PA")
+			packetConfirm.WriteByte(0)
+			packetConfirm.WriteString("\n")
+			_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+		}
 	}
 }
 
 func game() {
 
-	fmt.Print("Hello world\n");
+	fmt.Print("Hello world\n")
 
 	p := Server{
 		Addr:   "127.0.0.1:5555",
@@ -110,21 +141,37 @@ func game() {
 
 			packets := extractPackets(b)
 			for _, p := range packets {
-				fmt.Println("[game] server->client: " + string(p))
+
+				strPacket := string(p)
+				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
+
+				char := getChararacter(id)
+				if char != nil {
+					fmt.Println("[" + char.Name + "] server->client: " + strPacket)
+				}
+
 				if strings.HasPrefix(string(p), "ALK") {
-					processPerso(id, string(p))
+					processPerso(id, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GTS") {
-					startTurn(id, string(p))
+					startTurn(id, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "PIK") {
+					popupInvitation(id, strPacket)
 				}
 			}
 
 		},
 		ModifyRequest: func(b *[]byte, id string) {
-			packet := string(*b)
+			strPacket := string(*b)
+			strPacket = strPacket[:len(strPacket) - 1] // Remove last '0' byte
 
-			fmt.Println("[game] client->server: " + packet)
+			char := getChararacter(id)
+			if char != nil {
+				fmt.Println("[" + char.Name + "] client->server: " + strPacket)
+			}
 
 			//if (strings.HasPrefix(packet, ""))
 		},
