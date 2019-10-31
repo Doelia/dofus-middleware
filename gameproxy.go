@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 )
 
 func OnCharacterEnterInGame(id string, packet string) {
@@ -25,7 +26,9 @@ func OnStartTurn(id string, packet string) {
 	char := getChararacter(id)
 	if char.IdCharDofus == idCharTurn {
 		fmt.Println("Start turn of " + char.Name)
-		SwitchToCharacter(char.Name)
+		if Options.FocusWindowOnCharacterTurn {
+			go SwitchToCharacter(char.Name)
+		}
 	}
 }
 
@@ -71,6 +74,32 @@ func OnPopupExchange(id string, packet string) {
 	}
 }
 
+// Gt90069329|+90069329;Lotahi;44
+func OnFightOpened(id string, packet string) {
+	fmt.Println("OnFightOpened: " + packet)
+	splited := strings.Split(packet[2:], "|")
+	startedBy := splited[0]
+
+	if isOneOfMyCharacter(startedBy) {
+		counter := 0
+		for _, char := range Characters {
+			if char.IdCharDofus != startedBy && char.IdCharDofus != "" {
+
+				counter := counter + 1
+				time.Sleep(time.Duration(counter * 500) * time.Millisecond)
+
+				//GA90390069329;90069329
+				packetConfirm := bytes.NewBufferString("GA903" + startedBy + ";" + startedBy)
+				fmt.Println("send join fight packet to " + char.Name)
+
+				packetConfirm.WriteByte(0)
+				packetConfirm.WriteString("\n")
+				_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+			}
+		}
+	}
+}
+
 func OnMoveCharater(id string, packet string) {
 	//counter := 0
 	//for _, c := range Characters {
@@ -98,8 +127,8 @@ func game() {
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
 				char := getChararacter(id)
-				if char != nil {
-					fmt.Println("[" + char.Name + "] WebSocket->client: " + strPacket)
+				if char != nil && Options.ShowOutputPackets {
+					fmt.Println("[" + char.Name + "] server->client: " + strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ALK") {
@@ -116,6 +145,10 @@ func game() {
 
 				if strings.HasPrefix(string(p), "ERK") {
 					OnPopupExchange(id, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "Gt") {
+					OnFightOpened(id, strPacket)
 				}
 			}
 
@@ -134,7 +167,7 @@ func game() {
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
 				char := getChararacter(id)
-				if char != nil {
+				if char != nil && Options.ShowInputPackets {
 					fmt.Println("[" + char.Name + "] client->WebSocket: " + strPacket)
 				}
 

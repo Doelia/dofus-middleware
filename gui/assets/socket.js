@@ -23,8 +23,12 @@ ws.onmessage = function(evt) {
             let characters = JSON.parse(content);
             characters = characters.filter(v => v.Name !== '');
             console.log(characters);
-            Data.characters = characters;
-            refreshVue();
+            app.characters = characters;
+            break;
+        case 'OPTIONS':
+            let options = JSON.parse(content);
+            console.log('options', options);
+            app.options = options;
             break;
     }
 }

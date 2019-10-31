@@ -15,9 +15,16 @@
   <body>
     <h1>Hello World!</h1>
     <div id="app">
+      <h2>Characters</h2>
       <div v-for="character in characters">
-        {{ character.Name }}
+        Name: {{ character.Name }}
+        ID: {{ character.IdCharDofus }}
         <button v-on:click="focusCharacter(character.Name)">Focus</button>
+      </div>
+      <h2>Options</h2>
+      <div v-for="(isActivate, optionName) in options">
+        <input type="checkbox" id="checkbox" :checked="isActivate" v-on:click="setOption(optionName, !isActivate)">
+          {{ optionName }}
       </div>
     </div>
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -16,13 +17,35 @@ func SendCharacters(characters []Character) {
 	SendPacket("CHARACTERS", string(message))
 }
 
-func onMessage(packet string) {
+func SendOptions(options OptionsStruct) {
+	message, _ := json.Marshal(options)
+	SendPacket("OPTIONS", string(message))
+}
 
+func onMessage(packet string) {
 	parts := strings.Split(packet, "|")
 	typepacket := parts[0]
-	content := parts[1]
 	if typepacket == "FOCUS" {
-		SwitchToCharacter(content)
+		go SwitchToCharacter(parts[1])
+	}
+	if typepacket == "SET_OPTION" {
+		fmt.Println("websocket input : SET_OPTIONS " + parts[1] + " " + parts[2])
+		if parts[1] == "ShowInputPackets" {
+			Options.ShowInputPackets = parts[2] == "true"
+		}
+		if parts[1] == "ShowOutputPackets" {
+			Options.ShowOutputPackets = parts[2] == "true"
+		}
+		if parts[1] == "DispatchMoves" {
+			Options.DispatchMoves = parts[2] == "true"
+		}
+		if parts[1] == "FocusWindowOnCharacterTurn" {
+			Options.FocusWindowOnCharacterTurn = parts[2] == "true"
+		}
+		if parts[1] == "AutoJoinFight" {
+			Options.AutoJoinFight = parts[2] == "true"
+		}
+		SendOptions(Options)
 	}
 }
 
@@ -41,6 +64,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendCharacters(Characters)
+	SendOptions(Options)
 	defer c.Close()
 	for {
 		mt, message, err := c.ReadMessage()

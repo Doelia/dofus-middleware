@@ -1,15 +1,14 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, globalShortcut} = require('electron')
 const path = require('path')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-
-app.commandLine.appendSwitch('disable-web-security');
-
 function createWindow () {
+
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
@@ -17,13 +16,29 @@ function createWindow () {
       // transparent:true,
       // frame: false,
     webPreferences: {
-
-        enableRemoteModule: false,
-        webSecurity: false,
-        allowRunningInsecureContent: true,
+        nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+globalShortcut.register('Command+1', () => {
+    mainWindow.webContents.send('focus-character', '1');
+})
+globalShortcut.register('Command+2', () => {
+    mainWindow.webContents.send('focus-character', '2');
+})
+globalShortcut.register('Command+3', () => {
+    mainWindow.webContents.send('focus-character', '3');
+})
+globalShortcut.register('Command+4', () => {
+    mainWindow.webContents.send('focus-character', '4');
+})
+globalShortcut.register('Command+5', () => {
+    mainWindow.webContents.send('focus-character', '5');
+})
+globalShortcut.register('Command+6', () => {
+    mainWindow.webContents.send('focus-character', '6');
+})
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
