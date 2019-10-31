@@ -8,25 +8,25 @@ import (
 )
 
 
-// Server is a TCP server that takes an incoming request and sends it to another
-// server, proxying the response back to the client.
+// Server is a TCP WebSocket that takes an incoming request and sends it to another
+// WebSocket, proxying the response back to the client.
 type Server struct {
 	// TCP address to listen on
 	Addr string
 
-	// TCP address of target server
+	// TCP address of target WebSocket
 	Target string
 
-	// ModifyRequest is an optional function that modifies the request from a client to the target server.
+	// ModifyRequest is an optional function that modifies the request from a client to the target WebSocket.
 	ModifyRequest func(b *[]byte, id string)
 
-	// ModifyResponse is an optional function that modifies the response from the target server.
+	// ModifyResponse is an optional function that modifies the response from the target WebSocket.
 	ModifyResponse func(b *[]byte, id string)
 
 	// TLS configuration to listen on.
 	TLSConfig *tls.Config
 
-	// TLS configuration for the proxy if needed to connect to the target server with TLS protocol.
+	// TLS configuration for the proxy if needed to connect to the target WebSocket with TLS protocol.
 	// If nil, TCP protocol is used.
 	TLSConfigTarget *tls.Config
 }
@@ -58,7 +58,7 @@ func (s *Server) serve(ln net.Listener) error {
 func (s *Server) handleConn(conn net.Conn) {
 
 	fmt.Println("handleConn")
-	// connects to target server
+	// connects to target WebSocket
 	var rconn net.Conn
 	var err error
 
