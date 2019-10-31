@@ -2,7 +2,6 @@ name=$1
 
 osascript -e '
 tell application "Dofus" to activate
-delay 0.5
 
 tell application "System Events" to tell application process "Dofus"
 	get properties of windows

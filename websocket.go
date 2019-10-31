@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true} } // use default options
@@ -12,11 +13,24 @@ var GuiSocket *websocket.Conn
 
 func SendCharacters(characters []Character) {
 	message, _ := json.Marshal(characters)
-	GuiSocket.WriteMessage(websocket.TextMessage, message)
+	SendPacket("CHARACTERS", string(message))
 }
 
 func onMessage(packet string) {
 
+	parts := strings.Split(packet, "|")
+	typepacket := parts[0]
+	content := parts[1]
+	if typepacket == "FOCUS" {
+		SwitchToCharacter(content)
+	}
+}
+
+func SendPacket(typepacket string, content string) {
+	err := GuiSocket.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
+	if err != nil {
+		log.Println("write error: ", err)
+	}
 }
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -34,11 +48,8 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			log.Println("read:", err)
 			break
 		}
-		log.Printf("recv: %s", message)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			log.Println("write:", err)
-			break
+		if mt == websocket.TextMessage {
+			onMessage(string(message))
 		}
 	}
 }

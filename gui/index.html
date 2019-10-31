@@ -14,36 +14,16 @@
   </head>
   <body>
     <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium 2 <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+    <div id="app">
+      <div v-for="character in characters">
+        {{ character.Name }}
+        <button v-on:click="focusCharacter(character.Name)">Focus</button>
+      </div>
+    </div>
 
     <!-- You can also require other files to run in this process -->
-    <script src="./renderer.js"></script>
-
-
-    <script>
-        var ws;
-
-        function print(s) {
-            console.log('socket', s);
-        }
-
-        ws = new WebSocket("ws://localhost:8001/ws");
-        ws.onopen = function(evt) {
-            print("OPEN");
-        }
-        ws.onclose = function(evt) {
-            print("CLOSE");
-            ws = null;
-        }
-        ws.onmessage = function(evt) {
-            print("RESPONSE: " + evt.data);
-        }
-        ws.onerror = function(evt) {
-            print("ERROR: " + evt.data);
-        }
-
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./assets/socket.js"></script>
+    <script src="./assets/main.js"></script>
   </body>
 </html>
