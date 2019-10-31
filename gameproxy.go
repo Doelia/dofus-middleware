@@ -105,7 +105,8 @@ func OnMoveCharater(id string, packet string) {
 		counter := 0
 		for _, c := range Characters {
 			if c.Name != "" && c.Id != id {
-				counter := counter + 1
+				counter = counter + 1
+				fmt.Println(counter)
 				go moveChar(c, packet, counter)
 			}
 		}
