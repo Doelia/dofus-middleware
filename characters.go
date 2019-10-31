@@ -10,6 +10,7 @@ type Character struct {
 	Id string
 	ConnClient net.Conn
 	ConnServer net.Conn
+	OptionAutoPassTurn bool
 }
 
 func isOneOfMyCharacter(name string) bool {

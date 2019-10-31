@@ -27,6 +27,28 @@ func extractPackets(b* []byte) [][]byte {
 }
 
 
+func joinFightCharacter(char Character, startedBy string) {
+	time.Sleep(time.Duration(500) * time.Millisecond)
+
+	//GA90390069329;90069329
+	packetConfirm := bytes.NewBufferString("GA903" + startedBy + ";" + startedBy)
+	fmt.Println("send join fight packet to " + char.Name)
+
+	packetConfirm.WriteByte(0)
+	packetConfirm.WriteString("\n")
+	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+}
+
+func readyFightCharacter(char Character) {
+	time.Sleep(time.Duration(1000) * time.Millisecond)
+
+	packetConfirm := bytes.NewBufferString("GR1")
+	fmt.Println("send ready fight packet to " + char.Name)
+
+	packetConfirm.WriteByte(0)
+	packetConfirm.WriteString("\n")
+	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+}
 
 func moveChar(char Character, packet string, counter int) {
 	fmt.Println("send move " + packet + " to " + char.Name)

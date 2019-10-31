@@ -20,10 +20,11 @@
         Name: {{ character.Name }}
         ID: {{ character.IdCharDofus }}
         <button v-on:click="focusCharacter(character.Name)">Focus</button>
+        <input type="checkbox" :checked="character.OptionAutoPassTurn" v-on:click="setCharacterOption('OptionAutoPassTurn', character.Name, !character.OptionAutoPassTurn)">
       </div>
       <h2>Options</h2>
       <div v-for="(isActivate, optionName) in options">
-        <input type="checkbox" id="checkbox" :checked="isActivate" v-on:click="setOption(optionName, !isActivate)">
+        <input type="checkbox" :checked="isActivate" v-on:click="setOption(optionName, !isActivate)">
           {{ optionName }}
       </div>
     </div>

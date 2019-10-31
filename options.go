@@ -2,6 +2,7 @@ package main
 
 type OptionsStruct struct {
 	AutoJoinFight bool
+	AutoReadyFight bool
 	ShowInputPackets bool
 	ShowOutputPackets bool
 	DispatchMoves bool

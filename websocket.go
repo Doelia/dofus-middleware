@@ -45,7 +45,17 @@ func onMessage(packet string) {
 		if parts[1] == "AutoJoinFight" {
 			Options.AutoJoinFight = parts[2] == "true"
 		}
+		if parts[1] == "AutoReadyFight" {
+			Options.AutoReadyFight = parts[2] == "true"
+		}
 		SendOptions(Options)
+	}
+	if typepacket == "SET_CHARACTER_OPTION" {
+		fmt.Println("websocket input : SET_CHARACTER_OPTIONS " + parts[1] + " " + parts[2] + " " + parts[3])
+		if parts[2] == "OptionAutoPassTurn" {
+			getChararacter(parts[1]).OptionAutoPassTurn = parts[3] == "true"
+		}
+		SendCharacters(Characters)
 	}
 }
 

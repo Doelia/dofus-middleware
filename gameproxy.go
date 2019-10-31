@@ -29,6 +29,14 @@ func OnStartTurn(id string, packet string) {
 		if Options.FocusWindowOnCharacterTurn {
 			go SwitchToCharacter(char.Name)
 		}
+		if char.OptionAutoPassTurn {
+			fmt.Println("Pass turn of " + char.Name)
+			time.Sleep(time.Duration(200) * time.Millisecond)
+			packetConfirm := bytes.NewBufferString("Gt")
+			packetConfirm.WriteByte(0)
+			packetConfirm.WriteString("\n")
+			_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+		}
 	}
 }
 
@@ -76,38 +84,32 @@ func OnPopupExchange(id string, packet string) {
 
 // Gt90069329|+90069329;Lotahi;44
 func OnFightOpened(id string, packet string) {
-	fmt.Println("OnFightOpened: " + packet)
+	char := getChararacter(id)
+	fmt.Println("[" + char.Name + "] OnFightOpened: " + packet)
 	splited := strings.Split(packet[2:], "|")
 	startedBy := splited[0]
 
 	if isOneOfMyCharacter(startedBy) {
-		counter := 0
-		for _, char := range Characters {
-			if char.IdCharDofus != startedBy && char.IdCharDofus != "" {
-
-				counter := counter + 1
-				time.Sleep(time.Duration(counter * 500) * time.Millisecond)
-
-				//GA90390069329;90069329
-				packetConfirm := bytes.NewBufferString("GA903" + startedBy + ";" + startedBy)
-				fmt.Println("send join fight packet to " + char.Name)
-
-				packetConfirm.WriteByte(0)
-				packetConfirm.WriteString("\n")
-				_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+		if Options.AutoJoinFight {
+			go joinFightCharacter(*char, startedBy)
+			if Options.AutoReadyFight {
+				go readyFightCharacter(*char)
 			}
 		}
 	}
 }
 
+
 func OnMoveCharater(id string, packet string) {
-	//counter := 0
-	//for _, c := range Characters {
-	//	if c.Name != "" && c.Id != id {
-	//		counter := counter + 1
-	//		go moveChar(c, packet, counter)
-	//	}
-	//}
+	if Options.DispatchMoves {
+		counter := 0
+		for _, c := range Characters {
+			if c.Name != "" && c.Id != id {
+				counter := counter + 1
+				go moveChar(c, packet, counter)
+			}
+		}
+	}
 }
 
 func game() {

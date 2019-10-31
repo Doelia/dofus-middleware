@@ -16,7 +16,11 @@ var app = new Vue({
         setOption: function(name, value) {
             console.log('setOption', name, value);
             ws.send('SET_OPTION|' + name + "|" + value)
-        }
+        },
+        setCharacterOption: function(optionName, characterName, value) {
+            console.log('setOption', optionName, characterName, value);
+            ws.send('SET_CHARACTER_OPTION|' + characterName + "|" + optionName + "|" + value)
+        },
     }
 })
 
