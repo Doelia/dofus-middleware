@@ -17,6 +17,11 @@ func SendCharacters(characters []Character) {
 	SendPacket("CHARACTERS", string(message))
 }
 
+func SendFight(fight Fight) {
+	message, _ := json.Marshal(fight)
+	SendPacket("FIGHT", string(message))
+}
+
 func SendOptions(options OptionsStruct) {
 	message, _ := json.Marshal(options)
 	SendPacket("OPTIONS", string(message))
@@ -75,6 +80,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 	SendCharacters(Characters)
 	SendOptions(Options)
+	if CurrentFight != nil {
+		SendFight(*CurrentFight)
+	}
 	defer c.Close()
 	for {
 		mt, message, err := c.ReadMessage()

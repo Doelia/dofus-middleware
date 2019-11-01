@@ -34,6 +34,10 @@ ws.onmessage = function(evt) {
             console.log('options', options);
             app.options = options;
             break;
+        case 'FIGHT':
+            let fight = JSON.parse(content);
+            console.log('fight', fight);
+            break;
     }
 }
 ws.onerror = function(evt) {
