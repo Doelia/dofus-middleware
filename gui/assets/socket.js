@@ -24,6 +24,10 @@ ws.onmessage = function(evt) {
             characters = characters.filter(v => v.Name !== '');
             console.log(characters);
             app.characters = characters;
+
+            app.characters.forEach(char => {
+                app.cells = app.cells.map(c => ({...c, character: c.id === char.CellId ? 'yes' : null }));
+            });
             break;
         case 'OPTIONS':
             let options = JSON.parse(content);

@@ -8,6 +8,16 @@
       html {
         -webkit-app-region: drag;
       }
+      .map {
+      }
+      .cell {
+        position: absolute;
+        background: white;
+        width: 40px;
+        height: 40px;
+        border: 1px solid black;
+        transform: rotate(45deg);
+      }
     </style>
     <meta charset="UTF-8">
     <title>Hello World!</title>
@@ -27,6 +37,12 @@
         <input type="checkbox" :checked="isActivate" v-on:click="setOption(optionName, !isActivate)">
           {{ optionName }}
       </div>
+      <h3>Map</h3>
+        <div class="map" style="position: relative;">
+          <div v-for="cell in cells" class="cell" :style="{left: (cell.row * 60) + (cell.linePair ? 30 : 0) +  'px', top: (cell.line * 40) + 'px', background: cell.character ? 'blue' : 'white' }">
+            {{ cell.id }}
+          </div>
+        </div>
     </div>
 
     <!-- You can also require other files to run in this process -->

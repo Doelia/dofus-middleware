@@ -101,6 +101,11 @@ func OnFightOpened(id string, packet string) {
 
 
 func OnMoveCharater(id string, packet string) {
+
+	path := packet
+	getChararacter(id).CellId = decodePath(path)
+	SendCharacters(Characters)
+
 	if Options.DispatchMoves {
 		counter := 0
 		for _, c := range Characters {

@@ -11,8 +11,9 @@ type OptionsStruct struct {
 
 var Options = OptionsStruct{
 	AutoJoinFight: true,
+	AutoReadyFight: true,
 	ShowInputPackets: false,
-	ShowOutputPackets: false,
+	ShowOutputPackets: true,
 	DispatchMoves: false,
 	FocusWindowOnCharacterTurn: true,
 }

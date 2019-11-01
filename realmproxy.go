@@ -15,7 +15,7 @@ func login() {
 		Target: "34.251.172.139:443",
 		ModifyResponse: func(b *[]byte, id string) {
 			packet := string(*b)
-			//fmt.Println("[login] WebSocket->client: " + packet)
+			fmt.Println("[login] server->client: " + packet)
 			if strings.HasPrefix(packet, "AXK3413389?ag7") {
 				token := packet[14:]
 				fmt.Println("bibly packet transform!,  token=" + token)
@@ -23,6 +23,10 @@ func login() {
 				*b = by.Bytes()
 				//fmt.Println(*b)
 			}
+		},
+		ModifyRequest: func(b *[]byte, id string) {
+			packet := string(*b)
+			fmt.Println("[login] client->server: " + packet)
 		},
 	}
 

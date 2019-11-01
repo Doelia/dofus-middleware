@@ -1,8 +1,41 @@
+let cells = [];
+
+line = 0;
+row = 0;
+
+for (let i = 15; i < 500; i++) {
+    cells = [...cells, {
+        id: i,
+        line: line,
+        linePair: line % 2 == 0,
+        row: row,
+        character: null
+    }];
+
+    if (line % 2) {
+        if (row == 14) {
+            line++;
+            row = 0;
+        } else {
+            row++;
+        }
+    } else {
+        if (row == 13) {
+            line++;
+            row = 0;
+        } else {
+            row++;
+        }
+    }
+}
+
+console.log(cells);
 
 var Data = {
     characters: [],
     options: {},
-    message: 'Hello'
+    message: 'Hello',
+    cells: [...cells],
 };
 
 var app = new Vue({
