@@ -59,7 +59,7 @@ func moveChar(char Character, packet string, counter int) {
 	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
 }
 
-func decodeChar(c int) int {
+func decodeChar(c uint8) uint8 {
 	if c >= 'a' && c <= 'z' {
 		return c - 'a'
 	}
@@ -78,19 +78,17 @@ func decodeChar(c int) int {
 	return 0
 }
 
-func decodePath(path string) int {
+func decodePath(path string) uint8 {
 	lastCell := path[len(path)-2:]
 	c1 := lastCell[0]
 	c2 := lastCell[1]
-	return decodeChar(int(c1)) * 64 + decodeChar(int(c2))
+	return decodeChar(c1) * 64 + decodeChar(c2)
 }
 
 
 func main() {
-	//fmt.Println(decodeChar('A'))
-	//fmt.Println(decodePath("aecbff"))
 	go login()
 	go game()
 	StartWebSocket()
-	//InputKeyboard()
+	InputKeyboard()
 }

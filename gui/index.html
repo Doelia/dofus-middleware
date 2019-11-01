@@ -39,8 +39,9 @@
       </div>
       <h3>Map</h3>
         <div class="map" style="position: relative;">
-          <div v-for="cell in cells" class="cell" :style="{left: (cell.row * 60) + (cell.linePair ? 30 : 0) +  'px', top: (cell.line * 40) + 'px', background: cell.character ? 'blue' : 'white' }">
+          <div v-for="cell in cells" class="cell" :style="{left: (cell.row * 64) + (cell.linePair ? 32 : 0) +  'px', top: (cell.line * 32) + 'px', background: cell.LineOfSight ? (cell.Movement == 4 ? 'blue' : 'red'): 'white' }">
             {{ cell.id }}
+            {{ cell.Movement }}
           </div>
         </div>
     </div>

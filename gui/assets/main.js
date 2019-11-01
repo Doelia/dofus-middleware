@@ -9,7 +9,7 @@ for (let i = 15; i < 500; i++) {
         line: line,
         linePair: line % 2 == 0,
         row: row,
-        character: null
+        fighter: null
     }];
 
     if (line % 2) {

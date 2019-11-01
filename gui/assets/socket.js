@@ -25,18 +25,36 @@ ws.onmessage = function(evt) {
             console.log(characters);
             app.characters = characters;
 
-            app.characters.forEach(char => {
-                app.cells = app.cells.map(c => ({...c, character: c.id === char.CellId ? 'yes' : null }));
-            });
+            if (characters.length > 0 && characters[0].Fight) {
+                let fight = characters[0].Fight;
+                console.log('fight', fight);
+                app.cells = app.cells.map(c => ({...c, fighter: null }));
+                fight.Fighters.forEach(fighter => {
+                    app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
+                });
+            }
+
             break;
         case 'OPTIONS':
             let options = JSON.parse(content);
             console.log('options', options);
             app.options = options;
             break;
+        case 'MAP':
+            let map = JSON.parse(content);
+            console.log('map', map);
+            map.forEach(cell => {
+                app.cells = app.cells.map(c => {
+                    if (c.id === cell.CellId) {
+                        return {...c, ...cell}
+                    } else {
+                        return c
+                    }
+                });
+            })
+            console.log('map', app.cells);
+            break;
         case 'FIGHT':
-            let fight = JSON.parse(content);
-            console.log('fight', fight);
             break;
     }
 }

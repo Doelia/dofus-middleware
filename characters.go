@@ -12,6 +12,7 @@ type Character struct {
 	ConnServer net.Conn
 	OptionAutoPassTurn bool
 	CellId int
+	Fight *Fight
 }
 
 func isOneOfMyCharacter(name string) bool {
