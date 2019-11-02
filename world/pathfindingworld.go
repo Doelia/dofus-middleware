@@ -90,7 +90,7 @@ func AStarInWorld(start int, goal int) []int {
 
 	}
 
-	fmt.Println("path not found :(")
+	fmt.Println("path world not found :(")
 	return openSet
 }
 
