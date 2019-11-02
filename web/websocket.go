@@ -107,8 +107,12 @@ func SendPacket(typepacket string, content string) {
 func OnConnect() {
 	SendCharacters(world.Players)
 	SendOptions(options.Options)
-	themap := database.GetMap(world.GetAConnectedPlayer().MapId)
-	SendMap(themap)
+
+	randomCharacter := world.GetAConnectedPlayer()
+	if randomCharacter != nil {
+		themap := database.GetMap(world.GetAConnectedPlayer().MapId)
+		SendMap(themap)
+	}
 }
 
 func echo(w http.ResponseWriter, r *http.Request) {

@@ -21,18 +21,20 @@ ws.onmessage = function(evt) {
     switch (type) {
         case 'CHARACTERS':
             let characters = JSON.parse(content);
-            characters = characters.filter(v => v.Name !== '');
-            console.log('characters', characters);
-            app.characters = characters;
+            if (characters) {
+                characters = characters.filter(v => v.Name !== '');
+                console.log('characters', characters);
+                app.characters = characters;
 
-            if (characters.length > 0 && characters[0].Fight) {
-                let fight = characters[0].Fight;
-                console.log('fight', fight);
-                app.fight = fight;
-                // app.cells = app.cells.map(c => ({...c, fighter: null }));
-                // fight.Fighters.forEach(fighter => {
-                //     app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
-                // });
+                if (characters.length > 0 && characters[0].Fight) {
+                    let fight = characters[0].Fight;
+                    console.log('fight', fight);
+                    app.fight = fight;
+                    // app.cells = app.cells.map(c => ({...c, fighter: null }));
+                    // fight.Fighters.forEach(fighter => {
+                    //     app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
+                    // });
+                }
             }
 
             break;

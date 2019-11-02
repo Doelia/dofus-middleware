@@ -44,6 +44,7 @@
   <body>
     <h1>Hello World!</h1>
     <div id="app">
+
       <h2>Characters</h2>
       <div v-for="character in characters">
         Name: {{ character.Name }}
@@ -51,19 +52,22 @@
         <button v-on:click="focusCharacter(character.Name)">Focus</button>
         PassTurn: <input type="checkbox" :checked="character.OptionAutoPassTurn" v-on:click="setCharacterOption('OptionAutoPassTurn', character.Name, !character.OptionAutoPassTurn)">
       </div>
+
       <h2>Options</h2>
       <div v-for="(isActivate, optionName) in options">
         <input type="checkbox" :checked="isActivate" v-on:click="setOption(optionName, !isActivate)">
           {{ optionName }}
       </div>
-      <h3>Map</h3>
-        <h4>Path simulation</h4>
+
+        <h3>Path simulation</h3>
         <div>
           from: <input type="text" v-model="startCell">
           to: <input type="text" v-model="endCell">
           <button v-on:click="processPath(startCell, endCell)">process</button>
         </div>
-        <div class="map" style="position: relative;">
+
+        <div v-if="map.IdMap" class="map" style="position: relative;">
+          <h3>Map</h3>
           <div v-for="cell in cells" class="cell" :style=" {
               left: (cell.row * 64) + (!cell.linePair ? 32 : 0) +  'px',
               top: (cell.line * 32) + 'px',
