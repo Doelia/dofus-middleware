@@ -12,7 +12,7 @@ import (
 
 func StartGameProxy() {
 
-	fmt.Println("Start Game proxy")
+	fmt.Println("Start Game proxy on 127.0.0.0:5555")
 
 	p := socket.Server{
 		Addr:   "127.0.0.1:5555",
@@ -28,12 +28,20 @@ func StartGameProxy() {
 				connexion := world.GetConnexion(id)
 				player := connexion.Player
 
-				if player != nil && options.Options.ShowOutputPackets {
-					fmt.Println("[" + connexion.Player.Name + "] server->client: " + strPacket)
+				if options.Options.ShowOutputPackets {
+					if player != nil {
+						fmt.Println("[" + connexion.Player.Name + "] server->client: " + strPacket)
+					} else {
+						fmt.Println("[?] server->client: " + strPacket)
+					}
 				}
 
 				if strings.HasPrefix(string(p), "ALK") {
 					OnCharacterEnterInGame(connexion, strPacket)
+				}
+
+				if player == nil {
+					continue
 				}
 
 				if strings.HasPrefix(string(p), "GTS") {
@@ -90,7 +98,7 @@ func StartGameProxy() {
 				connexion := world.GetConnexion(id)
 				player := connexion.Player
 				if player != nil && options.Options.ShowInputPackets {
-					fmt.Println("[" + connexion.Player.Name + "] client->WebSocket: " + strPacket)
+					fmt.Println("[" + connexion.Player.Name + "] client->server: " + strPacket)
 				}
 
 				if strings.HasPrefix(strPacket, "GA001") {

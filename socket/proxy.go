@@ -46,7 +46,6 @@ func (s *Server) ListenAndServe() error {
 func (s *Server) serve(ln net.Listener) error {
 	for {
 		conn, err := ln.Accept()
-		fmt.Println("serve")
 		if err != nil {
 			log.Println(err)
 			continue
@@ -58,7 +57,6 @@ func (s *Server) serve(ln net.Listener) error {
 
 func (s *Server) handleConn(conn net.Conn) {
 
-	fmt.Println("handleConn")
 	// connects to target WebSocket
 	var rconn net.Conn
 	var err error
@@ -112,7 +110,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		}
 	}
 
-	fmt.Println("new connexion")
 	world.AddConnexion(world.Connexion{
 		Id: conn.RemoteAddr().String(),
 		ConnClient: conn,
@@ -121,6 +118,4 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	go pipe(conn, rconn, s.ModifyRequest, "in")
 	go pipe(rconn, conn, s.ModifyResponse, "out")
-
-	fmt.Println("pipe started")
 }

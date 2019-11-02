@@ -1,6 +1,8 @@
 package tools
 
-import "bytes"
+import (
+	"bytes"
+)
 
 func RemoveIntFromSlice(slice []int, cell int) []int {
 	indexToRemove := 0

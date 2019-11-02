@@ -9,7 +9,7 @@ import (
 
 func StartRealmProxy() {
 
-	fmt.Println("Start Realm proxy")
+	fmt.Println("Start Realm proxy on 127.0.0.1:9000")
 
 	p := socket.Server{
 		Addr:   "127.0.0.1:9000",

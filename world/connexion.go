@@ -15,6 +15,7 @@ type Connexion struct {
 }
 
 func AddConnexion(conn Connexion) {
+	fmt.Println("Create connexion", conn.Id)
 	Connexions = append(Connexions, conn)
 }
 

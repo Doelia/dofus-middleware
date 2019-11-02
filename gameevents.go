@@ -21,14 +21,15 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 	params := strings.Split(pr, ";")
 	name := params[1]
 
-	fmt.Println("Player enter in game : " + name)
 	player :=  &(world.Player{
 		Name: name,
 		IdCharDofus: params[0],
 		Connexion: connexion,
 	})
 
-	player = player
+	connexion.Player = player
+
+	fmt.Println("Player enter in game : " + name, connexion, player)
 
 	world.AddPlayer(*player)
 }
