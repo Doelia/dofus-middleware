@@ -47,25 +47,25 @@ func game() {
 					OnFightOpened(id, strPacket)
 				}
 
-				if strings.HasPrefix(string(p), "GM") {
-					OnSpriteInformation(id, strPacket)
-				}
-
-				if strings.HasPrefix(string(p), "GJK") {
-					OnJoinFight(id, strPacket)
-				}
-
-				if strings.HasPrefix(string(p), "GE") {
-					OnEndFight(id, strPacket)
-				}
-
-				if strings.HasPrefix(string(p), "GDM") {
-					OnMapInfo(id, strPacket)
-				}
-
-				if strings.HasPrefix(string(p), "GA0") {
-					OnCharacterMove(id, strPacket)
-				}
+				//if strings.HasPrefix(string(p), "GM") {
+				//	OnSpriteInformation(id, strPacket)
+				//}
+				//
+				//if strings.HasPrefix(string(p), "GJK") {
+				//	OnJoinFight(id, strPacket)
+				//}
+				//
+				//if strings.HasPrefix(string(p), "GE") {
+				//	OnEndFight(id, strPacket)
+				//}
+				//
+				//if strings.HasPrefix(string(p), "GDM") {
+				//	OnMapInfo(id, strPacket)
+				//}
+				//
+				//if strings.HasPrefix(string(p), "GA0") {
+				//	OnCharacterMove(id, strPacket)
+				//}
 			}
 
 		},

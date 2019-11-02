@@ -87,12 +87,12 @@ func onMessage(packet string) {
 }
 
 func SendPacket(typepacket string, content string) {
-	if GuiSocket != nil {
-		err := GuiSocket.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
-		if err != nil {
-			log.Println("write error: ", err)
-		}
-	}
+	//if GuiSocket != nil {
+	//	err := GuiSocket.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
+	//	if err != nil {
+	//		log.Println("write error: ", err)
+	//	}
+	//}
 }
 
 func OnConnect() {
