@@ -1,4 +1,4 @@
-package main
+package world
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ type Cell struct {
 	Active bool
 }
 
-func getCellOfMap(themap Map, cellid int) Cell {
+func GetCellOfMap(themap Map, cellid int) Cell {
 	for _, c := range themap.Cells {
 		if c.CellId == cellid {
 			return c
@@ -31,31 +31,7 @@ func getCellOfMap(themap Map, cellid int) Cell {
 	return Cell{}
 }
 
-func buildCell(cellData string) Cell {
-	cell := Cell{}
-	var data = make([]byte, 10)
-	for i := 0; i < len(cellData); i++  {
-		char := cellData[i]
-		data[i] = decodeChar(char)
-	}
 
-	cell.LineOfSight = data[0] & 1 == 1
-	cell.Movement = int((data[2] & 56) >> 3)
-	cell.ObjectId = int(((data[0] & 2) << 12) + ((data[7] & 1) << 12) + (data[8] << 6) + data[9])
-	cell.Active = (data[0] & 32) >> 5 == 1
-
-	return cell
-}
-
-func buildCellsFromMapData(mapData string) []Cell {
-	var cells []Cell
-	for i := 0; i < len(mapData); i+=10  {
-		cell := buildCell(mapData[i:i+10])
-		cell.CellId = i / 10
-		cells = append(cells, cell)
-	}
-	return cells
-}
 
 func GetCellXCoord(mape Map, cellID int) int {
 	width := mape.Width
@@ -70,7 +46,7 @@ func GetCellYCoord(mape Map, cellID int) int {
 	return loc5 - loc7
 }
 
-func distanceBetween(mape Map, id1 int, id2 int) int {
+func DistanceBetween(mape Map, id1 int, id2 int) int {
 	diffX := math.Abs(float64(GetCellXCoord(mape, id1) - GetCellXCoord(mape, id2)))
 	diffY := math.Abs(float64(GetCellYCoord(mape, id1) - GetCellYCoord(mape, id2)))
 

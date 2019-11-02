@@ -1,6 +1,11 @@
-package main
+package dofusmiddleware
 
 import (
+	"dofusmiddleware/database"
+	"dofusmiddleware/options"
+	"dofusmiddleware/socket"
+	"dofusmiddleware/windowmanagement"
+	"dofusmiddleware/world"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
@@ -13,18 +18,18 @@ import (
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true} } // use default options
 var GuiSocket *websocket.Conn
 
-func SendCharacters(characters []Character) {
+func SendCharacters(characters []world.Character) {
 	message, _ := json.Marshal(characters)
 	SendPacket("CHARACTERS", string(message))
 }
 
 
-func SendOptions(options OptionsStruct) {
+func SendOptions(options options.OptionsStruct) {
 	message, _ := json.Marshal(options)
 	SendPacket("OPTIONS", string(message))
 }
 
-func SendMap(themap Map) {
+func SendMap(themap world.Map) {
 	message, _ := json.Marshal(themap)
 	SendPacket("MAP", string(message))
 }
@@ -39,36 +44,36 @@ func onMessage(packet string) {
 	parts := strings.Split(packet, "|")
 	typepacket := parts[0]
 	if typepacket == "FOCUS" {
-		go SwitchToCharacter(parts[1])
+		go windowmanagement.SwitchToCharacter(parts[1])
 	}
 	if typepacket == "SET_OPTION" {
 		fmt.Println("websocket input : SET_OPTIONS " + parts[1] + " " + parts[2])
 		if parts[1] == "ShowInputPackets" {
-			Options.ShowInputPackets = parts[2] == "true"
+			options.Options.ShowInputPackets = parts[2] == "true"
 		}
 		if parts[1] == "ShowOutputPackets" {
-			Options.ShowOutputPackets = parts[2] == "true"
+			options.Options.ShowOutputPackets = parts[2] == "true"
 		}
 		if parts[1] == "DispatchMoves" {
-			Options.DispatchMoves = parts[2] == "true"
+			options.Options.DispatchMoves = parts[2] == "true"
 		}
 		if parts[1] == "FocusWindowOnCharacterTurn" {
-			Options.FocusWindowOnCharacterTurn = parts[2] == "true"
+			options.Options.FocusWindowOnCharacterTurn = parts[2] == "true"
 		}
 		if parts[1] == "AutoJoinFight" {
-			Options.AutoJoinFight = parts[2] == "true"
+			options.Options.AutoJoinFight = parts[2] == "true"
 		}
 		if parts[1] == "AutoReadyFight" {
-			Options.AutoReadyFight = parts[2] == "true"
+			options.Options.AutoReadyFight = parts[2] == "true"
 		}
-		SendOptions(Options)
+		SendOptions(options.Options)
 	}
 	if typepacket == "SET_CHARACTER_OPTION" {
 		fmt.Println("websocket input : SET_CHARACTER_OPTIONS " + parts[1] + " " + parts[2] + " " + parts[3])
 		if parts[2] == "OptionAutoPassTurn" {
-			getChararacter(parts[1]).OptionAutoPassTurn = parts[3] == "true"
+			world.GetChararacter(parts[1]).OptionAutoPassTurn = parts[3] == "true"
 		}
-		SendCharacters(Characters)
+		SendCharacters(world.Characters)
 	}
 	if typepacket == "PROCESS_PATH" {
 		idMap, _ := strconv.Atoi(parts[1])
@@ -77,12 +82,12 @@ func onMessage(packet string) {
 
 		fmt.Println("process path", idMap, cellStart, cellEnd)
 
-		themap := getMap(idMap)
-		path := AStar(themap, cellStart, cellEnd)
-		encodedPath := encodePath(themap, path)
+		themap := database.GetMap(idMap)
+		path := world.AStar(themap, cellStart, cellEnd)
+		encodedPath := world.EncodePath(themap, path)
 
 		SendPath(path)
-		sendMovePacket(*getAConnectedCharacter(), encodedPath)
+		socket.SendMovePacket(*world.GetAConnectedCharacter(), encodedPath)
 	}
 }
 
@@ -96,9 +101,9 @@ func SendPacket(typepacket string, content string) {
 }
 
 func OnConnect() {
-	SendCharacters(Characters)
-	SendOptions(Options)
-	themap := getMap(getAConnectedCharacter().MapId)
+	SendCharacters(world.Characters)
+	SendOptions(options.Options)
+	themap := database.GetMap(world.GetAConnectedCharacter().MapId)
 	SendMap(themap)
 }
 

@@ -1,22 +1,23 @@
-package main
+package socket
 
 import (
 	"bytes"
+	"dofusmiddleware/world"
 	"fmt"
 	"time"
 )
 
-func moveChar(char Character, packet string, counter int) {
+func MoveChar(char world.Character, packet string, counter int) {
 	fmt.Println("send move " + packet + " to " + char.Name)
 	time.Sleep(time.Duration(counter * 200) * time.Millisecond)
 	sendPacket(char, packet)
 }
 
-func sendMovePacket(char Character, path string) {
+func SendMovePacket(char world.Character, path string) {
 	sendPacket(char, "GA001" + path)
 }
 
-func joinFightCharacter(char Character, startedBy string) {
+func JoinFightCharacter(char world.Character, startedBy string) {
 	time.Sleep(time.Duration(500) * time.Millisecond)
 
 	// GA90390069329;90069329
@@ -26,7 +27,7 @@ func joinFightCharacter(char Character, startedBy string) {
 	sendPacket(char, packetConfirm)
 }
 
-func readyFightCharacter(char Character) {
+func ReadyFightCharacter(char world.Character) {
 	time.Sleep(time.Duration(1000) * time.Millisecond)
 
 	packetConfirm := "GR1"
@@ -35,7 +36,7 @@ func readyFightCharacter(char Character) {
 	sendPacket(char, packetConfirm)
 }
 
-func sendPacket(char Character, packet string) {
+func sendPacket(char world.Character, packet string) {
 	fmt.Println("send packet", packet, "to", char.Name)
 	packetConfirm := bytes.NewBufferString(packet)
 	packetConfirm.WriteByte(0)

@@ -1,4 +1,4 @@
-package main
+package options
 
 type OptionsStruct struct {
 	AutoJoinFight bool

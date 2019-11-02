@@ -1,4 +1,4 @@
-package main
+package world
 
 
 type Fighter struct {
@@ -16,7 +16,7 @@ type Fight struct {
 	Fighters []Fighter
 }
 
-func getFighter(fight *Fight, fighterId string) *Fighter {
+func GetFighter(fight *Fight, fighterId string) *Fighter {
 	for i, c := range fight.Fighters {
 		if c.Id == fighterId || c.Name == fighterId {
 			return &fight.Fighters[i]
@@ -26,8 +26,8 @@ func getFighter(fight *Fight, fighterId string) *Fighter {
 }
 
 
-func updateFighter(fight *Fight, fighter Fighter) {
-	f := getFighter(fight, fighter.Id)
+func UpdateFighter(fight *Fight, fighter Fighter) {
+	f := GetFighter(fight, fighter.Id)
 	if f != nil {
 		f.CellId = fighter.CellId
 	} else {

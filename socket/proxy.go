@@ -1,7 +1,8 @@
-package main
+package socket
 
 import (
 	"crypto/tls"
+	"dofusmiddleware/world"
 	"fmt"
 	"log"
 	"net"
@@ -105,7 +106,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 
 	fmt.Println("Add character")
-	Characters = append(Characters, Character{
+	world.Characters = append(world.Characters, world.Character{
 		Id: conn.RemoteAddr().String(),
 		ConnClient: conn,
 		ConnServer: rconn,

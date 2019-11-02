@@ -1,8 +1,8 @@
-package main
+package tools
 
 import "bytes"
 
-func remove(slice []int, cell int) []int {
+func Remove(slice []int, cell int) []int {
 	indexToRemove := 0
 	for i, c := range slice {
 		if c == cell {
@@ -12,12 +12,12 @@ func remove(slice []int, cell int) []int {
 	return append(slice[:indexToRemove], slice[indexToRemove+1:]...)
 }
 
-func encodeChar(ch int) uint8 {
+func EncodeChar(ch int) uint8 {
 	alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 	return alphabet[ch]
 }
 
-func decodeChar(c uint8) uint8 {
+func DecodeChar(c uint8) uint8 {
 	if c >= 'a' && c <= 'z' {
 		return c - 'a'
 	}
@@ -36,7 +36,7 @@ func decodeChar(c uint8) uint8 {
 	return 0
 }
 
-func extractPackets(b* []byte) [][]byte {
+func ExtractPackets(b* []byte) [][]byte {
 	var packets [][]byte
 	current := bytes.NewBuffer([]byte{})
 

@@ -1,14 +1,8 @@
-package main
-
-
-
-
-
-
+package dofusmiddleware
 
 func main() {
-	go login()
-	go game()
+	go Login()
+	go Game()
 	StartWebSocket()
 	//themap := getMap(710)
 	//path := AStar(themap, 76, 433)

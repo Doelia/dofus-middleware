@@ -1,7 +1,12 @@
-package main
+package dofusmiddleware
 
 import (
 	"bytes"
+	"dofusmiddleware/database"
+	"dofusmiddleware/options"
+	"dofusmiddleware/socket"
+	"dofusmiddleware/windowmanagement"
+	"dofusmiddleware/world"
 	"fmt"
 	"strconv"
 	"strings"
@@ -16,7 +21,7 @@ func OnCharacterEnterInGame(id string, packet string) {
 	name := params[1]
 
 	fmt.Println("Character enter in game : " + name)
-	var char = getChararacter(id)
+	var char = world.GetChararacter(id)
 	char.Name = name
 	char.IdCharDofus = params[0]
 }
@@ -24,11 +29,11 @@ func OnCharacterEnterInGame(id string, packet string) {
 func OnStartTurn(id string, packet string) {
 	splited := strings.Split(packet[3:], "|")
 	idCharTurn := splited[0]
-	char := getChararacter(id)
+	char := world.GetChararacter(id)
 	if char.IdCharDofus == idCharTurn {
 		fmt.Println("Start turn of " + char.Name)
-		if Options.FocusWindowOnCharacterTurn {
-			go SwitchToCharacter(char.Name)
+		if options.Options.FocusWindowOnCharacterTurn {
+			go windowmanagement.SwitchToCharacter(char.Name)
 		}
 		if char.OptionAutoPassTurn {
 			fmt.Println("Pass turn of " + char.Name)
@@ -47,12 +52,12 @@ func OnPopupGroupInvitation(id string, packet string) {
 	inviter := splited[0]
 	invited := splited[1]
 
-	char := getChararacter(id)
+	char := world.GetChararacter(id)
 	fmt.Println(inviter + " " + invited + " " + char.Name)
 
 	// Im invited
 	if invited == char.Name {
-		if isOneOfMyCharacter(inviter) {
+		if world.IsOneOfMyCharacter(inviter) {
 			fmt.Println("Im ("+ invited +") invited to join "+ inviter +" group's")
 			packetConfirm := bytes.NewBufferString("PA")
 			packetConfirm.WriteByte(0)
@@ -68,12 +73,12 @@ func OnPopupExchange(id string, packet string) {
 	inviter := splited[0]
 	invited := splited[1]
 
-	char := getChararacter(id)
+	char := world.GetChararacter(id)
 	fmt.Println(inviter + " " + invited + " " + char.Name)
 
 	// Im invited
 	if invited == char.IdCharDofus {
-		if isOneOfMyCharacter(inviter) {
+		if world.IsOneOfMyCharacter(inviter) {
 			fmt.Println("Im ("+ invited +") invited to exchange with "+ inviter)
 			packetConfirm := bytes.NewBufferString("EA")
 			packetConfirm.WriteByte(0)
@@ -85,16 +90,16 @@ func OnPopupExchange(id string, packet string) {
 
 // Gt90069329|+90069329;Lotahi;44
 func OnFightOpened(id string, packet string) {
-	char := getChararacter(id)
+	char := world.GetChararacter(id)
 	fmt.Println("[" + char.Name + "] OnFightOpened: " + packet)
 	splited := strings.Split(packet[2:], "|")
 	startedBy := splited[0]
 
-	if isOneOfMyCharacter(startedBy) {
-		if Options.AutoJoinFight {
-			go joinFightCharacter(*char, startedBy)
-			if Options.AutoReadyFight {
-				go readyFightCharacter(*char)
+	if world.IsOneOfMyCharacter(startedBy) {
+		if options.Options.AutoJoinFight {
+			go socket.JoinFightCharacter(*char, startedBy)
+			if options.Options.AutoReadyFight {
+				go socket.ReadyFightCharacter(*char)
 			}
 		}
 	}
@@ -102,13 +107,13 @@ func OnFightOpened(id string, packet string) {
 
 // GA001fc4 GA001[move]
 func OnMoveCharater(id string, packet string) {
-	if Options.DispatchMoves {
+	if options.Options.DispatchMoves {
 		counter := 0
-		for _, c := range Characters {
+		for _, c := range world.Characters {
 			if c.Name != "" && c.Id != id {
 				counter = counter + 1
 				fmt.Println(counter)
-				go moveChar(c, packet, counter)
+				go socket.MoveChar(c, packet, counter)
 			}
 		}
 	}
@@ -118,31 +123,31 @@ func OnMoveCharater(id string, packet string) {
 func OnJoinFight(id string, packet string) {
 	fmt.Println("OnJoinFight")
 
-	character := getChararacter(id)
-	character.Fight = &Fight{}
+	character := world.GetChararacter(id)
+	character.Fight = &world.Fight{}
 
-	themap := getMap(character.MapId)
+	themap := database.GetMap(character.MapId)
 	SendMap(themap)
 }
 
 func OnEndFight(id string, packet string) {
 	fmt.Println("OnEndFight")
-	getChararacter(id).Fight = nil
-	SendCharacters(Characters)
+	world.GetChararacter(id).Fight = nil
+	SendCharacters(world.Characters)
 }
 
 func OnMapInfo(id string, packet string) {
 	splited := strings.Split(packet, "|")
 	idMap, _ := strconv.Atoi(splited[1])
-	getChararacter(id).MapId = idMap
+	world.GetChararacter(id).MapId = idMap
 	fmt.Println("map detected", idMap)
-	themap := getMap(idMap)
+	themap := database.GetMap(idMap)
 	SendMap(themap)
 }
 
 // GA0;1;90069329;ae3hen
 func OnCharacterMove(id string, packet string) {
-	character := getChararacter(id)
+	character := world.GetChararacter(id)
 	splited := strings.Split(packet, ";")
 
 	fmt.Println("OnCharacterMove", splited)
@@ -156,11 +161,11 @@ func OnCharacterMove(id string, packet string) {
 	idChar := splited[2]
 
 	if character.Fight != nil {
-		cellId := getLastCellFromPath(path)
-		fighter := getFighter(character.Fight, idChar)
+		cellId := world.GetLastCellFromPath(path)
+		fighter := world.GetFighter(character.Fight, idChar)
 		fmt.Println("Fight: character", fighter, "move to ", cellId)
 		fighter.CellId = cellId
-		SendCharacters(Characters)
+		SendCharacters(world.Characters)
 	}
 }
 
@@ -171,7 +176,7 @@ func OnSpriteInformation(id string, packet string) {
 	fmt.Println("Sprite information" + packet)
 
 	entities := strings.Split(packet[3:], "|")
-	character := getChararacter(id)
+	character := world.GetChararacter(id)
 
 	if character.Fight != nil {
 
@@ -192,7 +197,7 @@ func OnSpriteInformation(id string, packet string) {
 			fmt.Println(datas)
 			fmt.Println(Id)
 
-			var fighter Fighter
+			var fighter world.Fighter
 
 			if Id < 0 {
 				if len(datas) < 15 {
@@ -200,7 +205,7 @@ func OnSpriteInformation(id string, packet string) {
 					return
 				}
 				teamId, _ := strconv.Atoi(datas[15])
-				fighter = Fighter{
+				fighter = world.Fighter{
 					IsMonster: true,
 					CellId: cellId,
 					Id:     datas[3],
@@ -214,7 +219,7 @@ func OnSpriteInformation(id string, packet string) {
 					return
 				}
 				teamId, _ := strconv.Atoi(datas[24])
-				fighter = Fighter{
+				fighter = world.Fighter{
 					IsMonster: false,
 					CellId: cellId,
 					Id:     datas[3],
@@ -226,8 +231,8 @@ func OnSpriteInformation(id string, packet string) {
 			}
 
 			fmt.Println(fighter)
-			updateFighter(character.Fight, fighter)
-			SendCharacters(Characters)
+			world.UpdateFighter(character.Fight, fighter)
+			SendCharacters(world.Characters)
 		}
 	}
 }

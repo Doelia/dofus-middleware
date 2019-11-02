@@ -1,6 +1,8 @@
-package main
+package world
 
-import "net"
+import (
+	"net"
+)
 
 var Characters []Character
 
@@ -16,7 +18,7 @@ type Character struct {
 	Fight *Fight
 }
 
-func isOneOfMyCharacter(name string) bool {
+func IsOneOfMyCharacter(name string) bool {
 	for _, c := range Characters {
 		if c.Name == name || c.IdCharDofus == name {
 			return true
@@ -25,7 +27,7 @@ func isOneOfMyCharacter(name string) bool {
 	return false
 }
 
-func getChararacter(search string) *Character {
+func GetChararacter(search string) *Character {
 	for i, c := range Characters {
 		if c.Id == search || c.Name == search {
 			return &Characters[i]
@@ -34,7 +36,7 @@ func getChararacter(search string) *Character {
 	return nil
 }
 
-func getAConnectedCharacter() *Character {
+func GetAConnectedCharacter() *Character {
 	for i, c := range Characters {
 		if len(c.Name) > 0 {
 			return &Characters[i]

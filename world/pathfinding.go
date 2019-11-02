@@ -1,13 +1,16 @@
-package main
+package world
 
-import "fmt"
+import (
+	"dofusmiddleware/tools"
+	"fmt"
+)
 
 // cost is the heuristic function. h(n) estimates the cost to reach goal from node n.
 func cost(themap Map, cell int, goal int) int {
-	return distanceBetween(themap, cell, goal)
+	return DistanceBetween(themap, cell, goal)
 }
 
-func encodePath(themap Map, cells []int) string {
+func EncodePath(themap Map, cells []int) string {
 	encoded := ""
 
 	for i, cell := range cells[1:] {
@@ -20,15 +23,15 @@ func encodePath(themap Map, cells []int) string {
 }
 
 func encodeOrientedCell(direction int, cellid int) string {
-	return string(encodeChar(direction)) + string(encodeChar(cellid / 64)) + string(encodeChar(cellid % 64))
+	return string(tools.EncodeChar(direction)) + string(tools.EncodeChar(cellid / 64)) + string(tools.EncodeChar(cellid % 64))
 }
 
 func getNeighbors(themap Map, cell int) []int {
 	var cells []int
-	c1 := getCellOfMap(themap, cell + 15)
-	c2 := getCellOfMap(themap, cell - 15)
-	c3 := getCellOfMap(themap, cell - 14)
-	c4 := getCellOfMap(themap, cell + 14)
+	c1 := GetCellOfMap(themap, cell + 15)
+	c2 := GetCellOfMap(themap, cell - 15)
+	c3 := GetCellOfMap(themap, cell - 14)
+	c4 := GetCellOfMap(themap, cell + 14)
 
 	if c1.Movement == 4 {
 		cells = append(cells, c1.CellId)
@@ -89,7 +92,7 @@ func AStar(themap Map, start int, goal int) []int {
 			return reconstruct_path(cameFrom, current)
 		}
 
-		openSet = remove(openSet, current)
+		openSet = tools.Remove(openSet, current)
 
 		for _, neighbor := range getNeighbors(themap, current) {
 			// d(current,neighbor) is the weight of the edge from current to neighbor
@@ -120,9 +123,9 @@ func AStar(themap Map, start int, goal int) []int {
 }
 
 
-func getLastCellFromPath(path string) int {
+func GetLastCellFromPath(path string) int {
 	lastCell := path[len(path)-2:]
 	c1 := lastCell[0]
 	c2 := lastCell[1]
-	return int(decodeChar(c1))*64 + int(decodeChar(c2))
+	return int(tools.DecodeChar(c1))*64 + int(tools.DecodeChar(c2))
 }

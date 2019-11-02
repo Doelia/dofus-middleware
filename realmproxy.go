@@ -1,16 +1,17 @@
-package main
+package dofusmiddleware
 
 import (
 	"bytes"
+	"dofusmiddleware/socket"
 	"fmt"
 	"strings"
 )
 
-func login() {
+func Login() {
 
 	fmt.Print("Hello world\n")
 
-	p := Server{
+	p := socket.Server{
 		Addr:   "127.0.0.1:478",
 		Target: "34.251.172.139:443",
 		ModifyResponse: func(b *[]byte, id string) {

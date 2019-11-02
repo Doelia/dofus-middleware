@@ -1,29 +1,33 @@
-package main
+package dofusmiddleware
 
 import (
+	"dofusmiddleware/options"
+	"dofusmiddleware/socket"
+	"dofusmiddleware/tools"
+	"dofusmiddleware/world"
 	"fmt"
 	"strings"
 )
 
 
-func game() {
+func Game() {
 
 	fmt.Print("New Game proxy")
 
-	p := Server{
+	p := socket.Server{
 		Addr:   "127.0.0.1:5555",
 		Target: "52.19.56.159:443",
 		ModifyResponse: func(b *[]byte, id string) {
 			//fmt.Println(*b)
 
-			packets := extractPackets(b)
+			packets := tools.ExtractPackets(b)
 			for _, p := range packets {
 
 				strPacket := string(p)
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
-				char := getChararacter(id)
-				if char != nil && Options.ShowOutputPackets {
+				char := world.GetChararacter(id)
+				if char != nil && options.Options.ShowOutputPackets {
 					fmt.Println("[" + char.Name + "] server->client: " + strPacket)
 				}
 
@@ -76,14 +80,14 @@ func game() {
 			bytess = bytess[:len(bytess) - 1] // Remove trailing '\n' byte
 			bytess[len(bytess) - 1] = 0
 
-			packets := extractPackets(&bytess)
+			packets := tools.ExtractPackets(&bytess)
 			for _, p := range packets {
 
 				strPacket := string(p)
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
-				char := getChararacter(id)
-				if char != nil && Options.ShowInputPackets {
+				char := world.GetChararacter(id)
+				if char != nil && options.Options.ShowInputPackets {
 					fmt.Println("[" + char.Name + "] client->WebSocket: " + strPacket)
 				}
 
