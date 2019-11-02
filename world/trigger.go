@@ -15,11 +15,20 @@ type MapWithTrigger struct {
 
 var MapWithTriggers []MapWithTrigger
 
-func GetMapWithTriggerWithID(idmap int, maps []MapWithTrigger) MapWithTrigger {
-	for _, mapWithTrigger := range maps {
+func GetMapWithTriggerWithID(idmap int) MapWithTrigger {
+	for _, mapWithTrigger := range MapWithTriggers {
 		if mapWithTrigger.MapId == idmap {
 			return mapWithTrigger
 		}
 	}
 	return MapWithTrigger{}
+}
+
+func GetCellToGoToMap(from_map int, to_map int) int {
+	for _, trigger := range GetMapWithTriggerWithID(from_map).Triggers {
+		if trigger.ToMapId == to_map {
+			return trigger.FromCellID
+		}
+	}
+	return 0
 }

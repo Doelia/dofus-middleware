@@ -16,13 +16,13 @@ func DistanceBetweenMaps(m1 MapWithTrigger, m2 MapWithTrigger) int {
 // cost is the heuristic function. h(n) estimates the cost to reach goal from node n.
 func costWorld(themap int, goal int) int {
 	return DistanceBetweenMaps(
-		GetMapWithTriggerWithID(themap, MapWithTriggers),
-		GetMapWithTriggerWithID(goal, MapWithTriggers),
+		GetMapWithTriggerWithID(themap),
+		GetMapWithTriggerWithID(goal),
 	)
 }
 
 func getNeighborsOfMap(idmap int) []int {
-	themap := GetMapWithTriggerWithID(idmap, MapWithTriggers)
+	themap := GetMapWithTriggerWithID(idmap)
 	var maps []int
 	for _, trigger := range themap.Triggers {
 		maps = append(maps, trigger.ToMapId)

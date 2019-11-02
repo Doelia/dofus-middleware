@@ -30,10 +30,6 @@ ws.onmessage = function(evt) {
                     let fight = characters[0].Fight;
                     console.log('fight', fight);
                     app.fight = fight;
-                    // app.cells = app.cells.map(c => ({...c, fighter: null }));
-                    // fight.Fighters.forEach(fighter => {
-                    //     app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
-                    // });
                 }
             }
 
