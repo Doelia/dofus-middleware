@@ -3,7 +3,7 @@
   <head>
     <style>
       body {
-        background: yellow
+        background: lightblue;
       }
       html {
         -webkit-app-region: drag;
@@ -39,7 +39,12 @@
       </div>
       <h3>Map</h3>
         <div class="map" style="position: relative;">
-          <div v-for="cell in cells" class="cell" :style="{left: (cell.row * 64) + (cell.linePair ? 32 : 0) +  'px', top: (cell.line * 32) + 'px', background: cell.LineOfSight ? (cell.Movement == 4 ? 'blue' : 'red'): 'white' }">
+          <div v-for="cell in cells" class="cell" :style="
+          {
+            left: (cell.row * 64) + (!cell.linePair ? 32 : 0) +  'px',
+            top: (cell.line * 32) + 'px',
+            background: !cell.path ? (cell.Movement == 4 ? 'white' : 'pink'): 'orange'
+           }">
             {{ cell.id }}
             {{ cell.Movement }}
           </div>

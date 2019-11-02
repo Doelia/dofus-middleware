@@ -54,7 +54,19 @@ ws.onmessage = function(evt) {
             })
             console.log('map', app.cells);
             break;
-        case 'FIGHT':
+        case 'PATH':
+            let ids = JSON.parse(content);
+            console.log('ids', ids)
+            ids.forEach(id => {
+                app.cells = app.cells.map(c => {
+                    if (c.id === id) {
+                        return {...c, path: true}
+                    } else {
+                        return c
+                    }
+                });
+            })
+
             break;
     }
 }

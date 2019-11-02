@@ -3,7 +3,7 @@ let cells = [];
 line = 0;
 row = 0;
 
-for (let i = 15; i < 500; i++) {
+for (let i = 0; i < 500; i++) {
     cells = [...cells, {
         id: i,
         line: line,
@@ -12,8 +12,8 @@ for (let i = 15; i < 500; i++) {
         fighter: null
     }];
 
-    if (line % 2) {
-        if (row == 14) {
+    if (line % 2 === 0) {
+        if (row === 14) {
             line++;
             row = 0;
         } else {
