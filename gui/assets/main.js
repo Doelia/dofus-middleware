@@ -29,12 +29,12 @@ for (let i = 0; i < 500; i++) {
     }
 }
 
-console.log(cells);
-
 var Data = {
     characters: [],
     options: {},
     message: 'Hello',
+    map: {},
+    fight: null,
     cells: [...cells],
     startCell: 0,
     endCell: 0
@@ -57,7 +57,7 @@ var app = new Vue({
             ws.send('SET_CHARACTER_OPTION|' + characterName + "|" + optionName + "|" + value)
         },
         processPath: function(start, end) {
-            ws.send('PROCESS_PATH|' + start + '|' + end);
+            ws.send('PROCESS_PATH|' + app.map.MapId + '|' + start + '|' + end);
         }
     }
 })

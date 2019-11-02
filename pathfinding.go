@@ -1,8 +1,26 @@
 package main
 
+import "fmt"
+
 // cost is the heuristic function. h(n) estimates the cost to reach goal from node n.
 func cost(themap Map, cell int, goal int) int {
 	return distanceBetween(themap, cell, goal)
+}
+
+func encodePath(themap Map, cells []int) string {
+	encoded := ""
+
+	for i, cell := range cells[1:] {
+		orientation := GetDirection(themap, cells[i], cell)
+		cellEncoded := encodeOrientedCell(orientation, cell)
+		encoded = encoded + cellEncoded
+	}
+
+	return encoded
+}
+
+func encodeOrientedCell(direction int, cellid int) string {
+	return string(encodeChar(direction)) + string(encodeChar(cellid / 64)) + string(encodeChar(cellid % 64))
 }
 
 func getNeighbors(themap Map, cell int) []int {
@@ -97,18 +115,14 @@ func AStar(themap Map, start int, goal int) []int {
 
 	}
 
-
-
+	fmt.Println("path not found :(")
 	return openSet
-
 }
 
-func remove(slice []int, cell int) []int {
-	indexToRemove := 0
-	for i, c := range slice {
-		if c == cell {
-			indexToRemove = i
-		}
-	}
-	return append(slice[:indexToRemove], slice[indexToRemove+1:]...)
+
+func getLastCellFromPath(path string) int {
+	lastCell := path[len(path)-2:]
+	c1 := lastCell[0]
+	c2 := lastCell[1]
+	return int(decodeChar(c1))*64 + int(decodeChar(c2))
 }

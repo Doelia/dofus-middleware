@@ -26,11 +26,10 @@ func extractPackets(b* []byte) [][]byte {
 	}
 }
 
-
 func joinFightCharacter(char Character, startedBy string) {
 	time.Sleep(time.Duration(500) * time.Millisecond)
 
-	//GA90390069329;90069329
+	// GA90390069329;90069329
 	packetConfirm := bytes.NewBufferString("GA903" + startedBy + ";" + startedBy)
 	fmt.Println("send join fight packet to " + char.Name)
 
@@ -50,13 +49,10 @@ func readyFightCharacter(char Character) {
 	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
 }
 
-func moveChar(char Character, packet string, counter int) {
-	fmt.Println("send move " + packet + " to " + char.Name)
-	time.Sleep(time.Duration(counter * 200) * time.Millisecond)
-	packetConfirm := bytes.NewBufferString(packet)
-	packetConfirm.WriteByte(0)
-	packetConfirm.WriteString("\n")
-	_, _ = char.ConnServer.Write(packetConfirm.Bytes())
+
+func encodeChar(ch int) uint8 {
+	alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+	return alphabet[ch]
 }
 
 func decodeChar(c uint8) uint8 {
@@ -78,15 +74,15 @@ func decodeChar(c uint8) uint8 {
 	return 0
 }
 
-func decodePath(path string) uint8 {
-	lastCell := path[len(path)-2:]
-	c1 := lastCell[0]
-	c2 := lastCell[1]
-	return decodeChar(c1) * 64 + decodeChar(c2)
-}
 
 func main() {
 	go login()
 	go game()
 	StartWebSocket()
+	//themap := getMap(710)
+	//path := AStar(themap, 76, 433)
+	//fmt.Println("path", path)
+	//encoded := encodePath(themap, path)
+	//fmt.Println("encoded", encoded)
+	//fmt.Println("decoded", decodePath(encoded))
 }

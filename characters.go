@@ -33,3 +33,12 @@ func getChararacter(search string) *Character {
 	}
 	return nil
 }
+
+func getAConnectedCharacter() *Character {
+	for i, c := range Characters {
+		if len(c.Name) > 0 {
+			return &Characters[i]
+		}
+	}
+	return nil
+}

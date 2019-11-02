@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +27,11 @@ func SendOptions(options OptionsStruct) {
 func SendMap(themap Map) {
 	message, _ := json.Marshal(themap)
 	SendPacket("MAP", string(message))
+}
+
+func SendPath(path []int) {
+	message, _ := json.Marshal(path)
+	SendPacket("PATH", string(message))
 }
 
 
@@ -65,7 +71,18 @@ func onMessage(packet string) {
 		SendCharacters(Characters)
 	}
 	if typepacket == "PROCESS_PATH" {
-		fmt.Println("process path", parts[1], parts[2])
+		idMap, _ := strconv.Atoi(parts[1])
+		cellStart, _ := strconv.Atoi(parts[2])
+		cellEnd, _ := strconv.Atoi(parts[3])
+
+		fmt.Println("process path", idMap, cellStart, cellEnd)
+
+		themap := getMap(idMap)
+		path := AStar(themap, cellStart, cellEnd)
+		encodedPath := encodePath(themap, path)
+
+		SendPath(path)
+		sendMovePacket(*getAConnectedCharacter(), encodedPath)
 	}
 }
 
@@ -81,7 +98,7 @@ func SendPacket(typepacket string, content string) {
 func OnConnect() {
 	SendCharacters(Characters)
 	SendOptions(Options)
-	themap := getMap(getChararacter("Doelia").MapId)
+	themap := getMap(getAConnectedCharacter().MapId)
 	SendMap(themap)
 }
 

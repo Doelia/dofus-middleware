@@ -18,6 +18,25 @@
         border: 1px solid black;
         transform: rotate(45deg);
       }
+      .cell img {
+        width: 100%;
+        height: 100%;
+      }
+        .hover {
+          display: none;
+          position: absolute;
+          right: 0;
+          bottom: 0;
+            background: black;
+          color: white;
+          padding: 5px;
+            width: 200px;
+          height: 100px;
+          transform: rotate(-45deg);
+        }
+        .cell:hover .hover {
+          display: block;
+        }
     </style>
     <meta charset="UTF-8">
     <title>Hello World!</title>
@@ -48,10 +67,14 @@
           <div v-for="cell in cells" class="cell" :style=" {
               left: (cell.row * 64) + (!cell.linePair ? 32 : 0) +  'px',
               top: (cell.line * 32) + 'px',
-              background: !cell.path ? (cell.Movement == 4 ? 'white' : 'pink'): 'orange'
+              background: !cell.path ? (cell.Movement > 0 ? 'white' : (cell.LineOfSight ?  'lightgray' : 'gray' )): 'orange'
               }">
-            {{ cell.id }}
-            {{ cell.Movement }}
+            <img src="assets/18035.webp" alt="" v-if="fight && fight.Fighters.find(f => f.CellId == cell.CellId && f.IsMonster)" />
+            <img src="assets/Cra.webp" alt="" v-if="fight && fight.Fighters.find(f => f.CellId == cell.CellId && !f.IsMonster)" />
+            <div class="hover">
+              ID: {{ cell.id }}<br>
+              Movement: {{ cell.Movement }}
+            </div>
           </div>
         </div>
     </div>

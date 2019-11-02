@@ -13,7 +13,7 @@ ws.onclose = function(evt) {
     ws = null;
 }
 ws.onmessage = function(evt) {
-    console.log(evt.data);
+    // console.log(evt.data);
     const parts = evt.data.split("|");
     const type = parts[0];
     const content = parts[1] || '';
@@ -22,16 +22,17 @@ ws.onmessage = function(evt) {
         case 'CHARACTERS':
             let characters = JSON.parse(content);
             characters = characters.filter(v => v.Name !== '');
-            console.log(characters);
+            console.log('characters', characters);
             app.characters = characters;
 
             if (characters.length > 0 && characters[0].Fight) {
                 let fight = characters[0].Fight;
                 console.log('fight', fight);
-                app.cells = app.cells.map(c => ({...c, fighter: null }));
-                fight.Fighters.forEach(fighter => {
-                    app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
-                });
+                app.fight = fight;
+                // app.cells = app.cells.map(c => ({...c, fighter: null }));
+                // fight.Fighters.forEach(fighter => {
+                //     app.cells = app.cells.map(c => ({...c, fighter: c.id === fighter.CellId ? fighter : c.fighter }));
+                // });
             }
 
             break;
@@ -43,6 +44,7 @@ ws.onmessage = function(evt) {
         case 'MAP':
             let map = JSON.parse(content);
             console.log('map', map);
+            app.map = map;
             map.Cells.forEach(cell => {
                 app.cells = app.cells.map(c => {
                     if (c.id === cell.CellId) {

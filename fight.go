@@ -9,13 +9,14 @@ type Fighter struct {
 	CellId int
 	Life int
 	IsMe bool
+	IsMonster bool
 }
 
 type Fight struct {
 	Fighters []Fighter
 }
 
-func getFighter(fight Fight, fighterId string) *Fighter {
+func getFighter(fight *Fight, fighterId string) *Fighter {
 	for i, c := range fight.Fighters {
 		if c.Id == fighterId || c.Name == fighterId {
 			return &fight.Fighters[i]
@@ -24,12 +25,9 @@ func getFighter(fight Fight, fighterId string) *Fighter {
 	return nil
 }
 
-func moveFigterToCellId(fight Fight, fighterId int, cellId int) {
-	getFighter(fight, string(fighterId)).CellId = cellId
-}
 
 func updateFighter(fight *Fight, fighter Fighter) {
-	f := getFighter(*fight, fighter.Id)
+	f := getFighter(fight, fighter.Id)
 	if f != nil {
 		f.CellId = fighter.CellId
 	} else {
