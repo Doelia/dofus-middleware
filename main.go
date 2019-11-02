@@ -1,11 +1,19 @@
 package main
 
-import "dofusmiddleware/web"
+import (
+	"dofusmiddleware/database"
+	"dofusmiddleware/world"
+	"fmt"
+)
 
 func main() {
-	go StartRealmProxy()
-	go StartGameProxy()
-	web.StartWebSocket()
+	//go StartRealmProxy()
+	//go StartGameProxy()
+	//web.StartWebSocket()
+
+	world.MapWithTriggers = database.GetMapriggers()
+	fmt.Println(world.MapWithTriggers)
+
 	//themap := getMap(710)
 	//path := AStar(themap, 76, 433)
 	//fmt.Println("path", path)

@@ -17,3 +17,5 @@ var Options = OptionsStruct{
 	DispatchMoves: false,
 	FocusWindowOnCharacterTurn: true,
 }
+
+var ConfigSqlLitePath = "/Users/stephane/Desktop/dodo.sqlite"

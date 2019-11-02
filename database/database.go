@@ -2,10 +2,13 @@ package database
 
 import (
 	"database/sql"
+	"dofusmiddleware/options"
 	"dofusmiddleware/tools"
 	"dofusmiddleware/world"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"strconv"
+	"strings"
 )
 
 var database *sql.DB
@@ -15,7 +18,7 @@ func GetMap(id int) world.Map {
 	fmt.Println("load map", id, "from database")
 
 	var err error
-	database, err = sql.Open("sqlite3", "/Users/stephane/Desktop/dofus.sqllite")
+	database, err = sql.Open("sqlite3", options.ConfigSqlLitePath)
 
 	if err != nil {
 		fmt.Println("err", err)
@@ -43,6 +46,55 @@ func GetMap(id int) world.Map {
 
 	fmt.Println("Error: map", id, "not found in database")
 	return world.Map{}
+}
+
+func GetMapriggers() []world.MapWithTrigger {
+
+	var triggers []world.MapWithTrigger
+
+	var err error
+	database, err = sql.Open("sqlite3", options.ConfigSqlLitePath)
+
+	if err != nil {
+		fmt.Println("err", err)
+	} else {
+		defer database.Close()
+
+		rows, err2 := database.Query("select from_map, GROUP_CONCAT(from_cell || '|' || to_map || '|' || to_cell), m.mappos from triggers t join maps m on t.from_map=m.id group by from_map")
+
+		if err2 != nil {
+			fmt.Println("err", err2)
+		} else {
+			for rows.Next() {
+				cellsString := ""
+				coords := ""
+				mapWithTrigger := world.MapWithTrigger{}
+				err = rows.Scan(&mapWithTrigger.MapId, &cellsString, &coords)
+				if err != nil {
+					fmt.Println("err", err)
+				}
+
+				coordsSplited := strings.Split(coords, ",")
+				mapWithTrigger.X, _ = strconv.Atoi(coordsSplited[0])
+				mapWithTrigger.Y, _ = strconv.Atoi(coordsSplited[1])
+
+				triggersStr := strings.Split(cellsString, ",")
+				for _, triggerStr := range triggersStr {
+					triggerStrArgs := strings.Split(triggerStr, "|")
+					trigger := world.Trigger{}
+					trigger.FromCellID, _ = strconv.Atoi(triggerStrArgs[0])
+					trigger.ToMapId, _ = strconv.Atoi(triggerStrArgs[1])
+					trigger.ToCellId, _ = strconv.Atoi(triggerStrArgs[2])
+					mapWithTrigger.Triggers = append(mapWithTrigger.Triggers, trigger)
+				}
+
+				triggers = append(triggers, mapWithTrigger)
+			}
+		}
+
+	}
+
+	return triggers
 }
 
 func buildCellsFromMapData(mapData string) []world.Cell {
