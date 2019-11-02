@@ -5,7 +5,6 @@ import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
 	"dofusmiddleware/socket"
-	"dofusmiddleware/web"
 	"dofusmiddleware/windowmanagement"
 	"dofusmiddleware/world"
 	"fmt"

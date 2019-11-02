@@ -37,7 +37,7 @@ func AddMoveTo(idPlayer string, startMap, goalMap int) {
 
 	moveTo := MoveTo{
 		IdPlayer: idPlayer,
-		pathStack: world.AStarInWorld(startMap, goalMap),
+		pathStack: world.AStarInWorld(startMap, goalMap)[1:],
 	}
 
 	fmt.Println("AddMoveTo", moveTo)
