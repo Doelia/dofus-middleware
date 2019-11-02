@@ -1,8 +1,8 @@
 package dofusmiddleware
 
 func main() {
-	go Login()
-	go Game()
+	go StartRealmProxy()
+	go StartGameProxy()
 	StartWebSocket()
 	//themap := getMap(710)
 	//path := AStar(themap, 76, 433)

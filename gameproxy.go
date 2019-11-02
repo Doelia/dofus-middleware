@@ -10,7 +10,7 @@ import (
 )
 
 
-func Game() {
+func StartGameProxy() {
 
 	fmt.Print("New Game proxy")
 
@@ -26,50 +26,50 @@ func Game() {
 				strPacket := string(p)
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
-				char := world.GetChararacter(id)
-				if char != nil && options.Options.ShowOutputPackets {
-					fmt.Println("[" + char.Name + "] server->client: " + strPacket)
+				character := world.GetChararacter(id)
+				if character != nil && options.Options.ShowOutputPackets {
+					fmt.Println("[" + character.Name + "] server->client: " + strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ALK") {
-					OnCharacterEnterInGame(id, strPacket)
+					OnCharacterEnterInGame(character, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GTS") {
-					OnStartTurn(id, strPacket)
+					OnStartTurn(character, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "PIK") {
-					OnPopupGroupInvitation(id, strPacket)
+					OnPopupGroupInvitation(character, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ERK") {
-					OnPopupExchange(id, strPacket)
+					OnPopupExchange(character, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "Gt") {
-					OnFightOpened(id, strPacket)
+					OnFightOpened(character, strPacket)
 				}
 
-				//if strings.HasPrefix(string(p), "GM") {
-				//	OnSpriteInformation(id, strPacket)
-				//}
-				//
-				//if strings.HasPrefix(string(p), "GJK") {
-				//	OnJoinFight(id, strPacket)
-				//}
-				//
-				//if strings.HasPrefix(string(p), "GE") {
-				//	OnEndFight(id, strPacket)
-				//}
-				//
-				//if strings.HasPrefix(string(p), "GDM") {
-				//	OnMapInfo(id, strPacket)
-				//}
-				//
-				//if strings.HasPrefix(string(p), "GA0") {
-				//	OnCharacterMove(id, strPacket)
-				//}
+				if strings.HasPrefix(string(p), "GM") {
+					OnSpriteInformation(character, strPacket)
+				}
+				
+				if strings.HasPrefix(string(p), "GJK") {
+					OnJoinFight(character, strPacket)
+				}
+				
+				if strings.HasPrefix(string(p), "GE") {
+					OnEndFight(character, strPacket)
+				}
+				
+				if strings.HasPrefix(string(p), "GDM") {
+					OnMapInfo(character, strPacket)
+				}
+				
+				if strings.HasPrefix(string(p), "GA0") {
+					OnCharacterMove(character, strPacket)
+				}
 			}
 
 		},
@@ -86,13 +86,13 @@ func Game() {
 				strPacket := string(p)
 				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
 
-				char := world.GetChararacter(id)
-				if char != nil && options.Options.ShowInputPackets {
-					fmt.Println("[" + char.Name + "] client->WebSocket: " + strPacket)
+				character := world.GetChararacter(id)
+				if character != nil && options.Options.ShowInputPackets {
+					fmt.Println("[" + character.Name + "] client->WebSocket: " + strPacket)
 				}
 
 				if strings.HasPrefix(strPacket, "GA001") {
-					OnMoveCharater(id, strPacket)
+					OnMoveCharater(character, strPacket)
 				}
 			}
 

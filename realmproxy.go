@@ -7,19 +7,19 @@ import (
 	"strings"
 )
 
-func Login() {
+func StartRealmProxy() {
 
-	fmt.Print("Hello world\n")
+	fmt.Print("StartRealmProxy")
 
 	p := socket.Server{
 		Addr:   "127.0.0.1:478",
 		Target: "34.251.172.139:443",
 		ModifyResponse: func(b *[]byte, id string) {
 			packet := string(*b)
-			fmt.Println("[login] server->client: " + packet)
+			fmt.Println("[realm] server->client: " + packet)
 			if strings.HasPrefix(packet, "AXK3413389?ag7") {
 				token := packet[14:]
-				fmt.Println("bibly packet transform!,  token=" + token)
+				fmt.Println("[realm] bibly packet transform!,  token=" + token)
 				by := bytes.NewBufferString("AYK127.0.0.1:5555;" + token)
 				*b = by.Bytes()
 				//fmt.Println(*b)

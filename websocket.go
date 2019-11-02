@@ -13,10 +13,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true} } // use default options
 var GuiSocket *websocket.Conn
+var mutex = &sync.Mutex{}
 
 func SendCharacters(characters []world.Character) {
 	message, _ := json.Marshal(characters)
@@ -92,12 +94,14 @@ func onMessage(packet string) {
 }
 
 func SendPacket(typepacket string, content string) {
-	//if GuiSocket != nil {
-	//	err := GuiSocket.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
-	//	if err != nil {
-	//		log.Println("write error: ", err)
-	//	}
-	//}
+	if GuiSocket != nil {
+		mutex.Lock()
+		err := GuiSocket.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
+		if err != nil {
+			log.Println("write error: ", err)
+		}
+		mutex.Unlock()
+	}
 }
 
 func OnConnect() {
