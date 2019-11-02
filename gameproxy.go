@@ -124,6 +124,13 @@ func OnEndFight(id string, packet string) {
 	getChararacter(id).Fight = nil
 }
 
+func OnMapInfo(id string, packet string) {
+	splited := strings.Split(packet, "|")
+	idMap := splited[1]
+	getChararacter(id).MapId, _ = strconv.Atoi(idMap)
+	fmt.Println("map detected", idMap)
+}
+
 // [+295 1 0 90069329 Lotahi 9 91^100 1 46 0,0,0,90069375 ffde34 2f8408 295a26 970,96b,96e,6c0, 408 7 3 0 0 0 0 0 20 20 0  ]
 // [+170 1 0 -1 236 -2 1212^100 4 a55ee0 ef9f4f -1 0,0,0,0 16 2 3 1]
 func OnSpriteInformation(id string, packet string) {
@@ -241,6 +248,10 @@ func game() {
 
 				if strings.HasPrefix(string(p), "GE") {
 					OnEndFight(id, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "GDM") {
+					OnMapInfo(id, strPacket)
 				}
 			}
 

@@ -38,13 +38,18 @@
           {{ optionName }}
       </div>
       <h3>Map</h3>
+        <h4>Path simulation</h4>
+        <div>
+          from: <input type="text" v-model="startCell">
+          to: <input type="text" v-model="endCell">
+          <button v-on:click="processPath(startCell, endCell)">process</button>
+        </div>
         <div class="map" style="position: relative;">
-          <div v-for="cell in cells" class="cell" :style="
-          {
-            left: (cell.row * 64) + (!cell.linePair ? 32 : 0) +  'px',
-            top: (cell.line * 32) + 'px',
-            background: !cell.path ? (cell.Movement == 4 ? 'white' : 'pink'): 'orange'
-           }">
+          <div v-for="cell in cells" class="cell" :style=" {
+              left: (cell.row * 64) + (!cell.linePair ? 32 : 0) +  'px',
+              top: (cell.line * 32) + 'px',
+              background: !cell.path ? (cell.Movement == 4 ? 'white' : 'pink'): 'orange'
+              }">
             {{ cell.id }}
             {{ cell.Movement }}
           </div>

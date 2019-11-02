@@ -11,6 +11,7 @@ type Character struct {
 	ConnClient net.Conn
 	ConnServer net.Conn
 	OptionAutoPassTurn bool
+	MapId int
 	CellId int
 	Fight *Fight
 }

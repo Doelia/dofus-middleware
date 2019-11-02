@@ -43,7 +43,7 @@ ws.onmessage = function(evt) {
         case 'MAP':
             let map = JSON.parse(content);
             console.log('map', map);
-            map.forEach(cell => {
+            map.Cells.forEach(cell => {
                 app.cells = app.cells.map(c => {
                     if (c.id === cell.CellId) {
                         return {...c, ...cell}
@@ -56,7 +56,7 @@ ws.onmessage = function(evt) {
             break;
         case 'PATH':
             let ids = JSON.parse(content);
-            console.log('ids', ids)
+            app.cells = app.cells.map(c => ({...c, path: false }));
             ids.forEach(id => {
                 app.cells = app.cells.map(c => {
                     if (c.id === id) {

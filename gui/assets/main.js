@@ -36,6 +36,8 @@ var Data = {
     options: {},
     message: 'Hello',
     cells: [...cells],
+    startCell: 0,
+    endCell: 0
 };
 
 var app = new Vue({
@@ -54,6 +56,9 @@ var app = new Vue({
             console.log('setOption', optionName, characterName, value);
             ws.send('SET_CHARACTER_OPTION|' + characterName + "|" + optionName + "|" + value)
         },
+        processPath: function(start, end) {
+            ws.send('PROCESS_PATH|' + start + '|' + end);
+        }
     }
 })
 
