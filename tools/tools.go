@@ -2,7 +2,7 @@ package tools
 
 import "bytes"
 
-func Remove(slice []int, cell int) []int {
+func RemoveIntFromSlice(slice []int, cell int) []int {
 	indexToRemove := 0
 	for i, c := range slice {
 		if c == cell {

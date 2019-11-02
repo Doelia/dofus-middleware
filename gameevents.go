@@ -1,10 +1,11 @@
-package dofusmiddleware
+package main
 
 import (
 	"bytes"
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
 	"dofusmiddleware/socket"
+	"dofusmiddleware/web"
 	"dofusmiddleware/windowmanagement"
 	"dofusmiddleware/world"
 	"fmt"
@@ -13,164 +14,165 @@ import (
 	"time"
 )
 
-func OnCharacterEnterInGame(character *world.Character, packet string) {
+func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 	splited := strings.Split(packet, "|")
 	pr := splited[2]
 
 	params := strings.Split(pr, ";")
 	name := params[1]
 
-	fmt.Println("Character enter in game : " + name)
-	character.Name = name
-	character.IdCharDofus = params[0]
+	fmt.Println("Player enter in game : " + name)
+	player :=  &(world.Player{
+		Name: name,
+		IdCharDofus: params[0],
+		Connexion: connexion,
+	})
+
+	player = player
+
+	world.AddPlayer(*player)
 }
 
-func OnStartTurn(character *world.Character, packet string) {
+func OnStartTurn(player *world.Player, packet string) {
 	splited := strings.Split(packet[3:], "|")
 	idCharTurn := splited[0]
-	if character.IdCharDofus == idCharTurn {
-		fmt.Println("Start turn of " + character.Name)
+	if player.IdCharDofus == idCharTurn {
+		fmt.Println("Start turn of " + player.Name)
 		if options.Options.FocusWindowOnCharacterTurn {
-			go windowmanagement.SwitchToCharacter(character.Name)
+			go windowmanagement.SwitchToCharacter(player.Name)
 		}
-		if character.OptionAutoPassTurn {
-			fmt.Println("Pass turn of " + character.Name)
+		if player.OptionAutoPassTurn {
+			fmt.Println("Pass turn of " + player.Name)
 			time.Sleep(time.Duration(200) * time.Millisecond)
-			packetConfirm := bytes.NewBufferString("Gt")
-			packetConfirm.WriteByte(0)
-			packetConfirm.WriteString("\n")
-			_, _ = character.ConnServer.Write(packetConfirm.Bytes())
+			socket.SendPassTurn(*player.Connexion)
 		}
 	}
 }
 
 // PIKDoelia|Lotahi
-func OnPopupGroupInvitation(character *world.Character, packet string) {
+func OnPopupGroupInvitation(player *world.Player, packet string) {
 	splited := strings.Split(packet[3:], "|")
 	inviter := splited[0]
 	invited := splited[1]
 
-	fmt.Println(inviter + " " + invited + " " + character.Name)
+	fmt.Println(inviter + " " + invited + " " + player.Name)
 
 	// Im invited
-	if invited == character.Name {
-		if world.IsOneOfMyCharacter(inviter) {
+	if invited == player.Name {
+		if world.IsOneOfMyPlayer(inviter) {
 			fmt.Println("Im ("+ invited +") invited to join "+ inviter +" group's")
-			packetConfirm := bytes.NewBufferString("PA")
-			packetConfirm.WriteByte(0)
-			packetConfirm.WriteString("\n")
-			_, _ = character.ConnServer.Write(packetConfirm.Bytes())
+			socket.SendConfirmAction(*player.Connexion)
 		}
 	}
 }
 
 //  ERK90069329|90069284|1
-func OnPopupExchange(character *world.Character, packet string) {
+func OnPopupExchange(player *world.Player, packet string) {
 	splited := strings.Split(packet[3:], "|")
 	inviter := splited[0]
 	invited := splited[1]
 
-	fmt.Println(inviter + " " + invited + " " + character.Name)
+	fmt.Println(inviter + " " + invited + " " + player.Name)
 
 	// Im invited
-	if invited == character.IdCharDofus {
-		if world.IsOneOfMyCharacter(inviter) {
+	if invited == player.IdCharDofus {
+		if world.IsOneOfMyPlayer(inviter) {
 			fmt.Println("Im ("+ invited +") invited to exchange with "+ inviter)
 			packetConfirm := bytes.NewBufferString("EA")
 			packetConfirm.WriteByte(0)
 			packetConfirm.WriteString("\n")
-			_, _ = character.ConnServer.Write(packetConfirm.Bytes())
+			_, _ = player.Connexion.ConnServer.Write(packetConfirm.Bytes())
 		}
 	}
 }
 
 // Gt90069329|+90069329;Lotahi;44
-func OnFightOpened(character *world.Character, packet string) {
-	fmt.Println("[" + character.Name + "] OnFightOpened: " + packet)
+func OnFightOpened(player *world.Player, packet string) {
+	fmt.Println("[" + player.Name + "] OnFightOpened: " + packet)
 	splited := strings.Split(packet[2:], "|")
 	startedBy := splited[0]
 
-	if world.IsOneOfMyCharacter(startedBy) {
+	if world.IsOneOfMyPlayer(startedBy) {
 		if options.Options.AutoJoinFight {
-			go socket.JoinFightCharacter(*character, startedBy)
+			go socket.JoinFightCharacter(*player.Connexion, startedBy)
 			if options.Options.AutoReadyFight {
-				go socket.ReadyFightCharacter(*character)
+				go socket.ReadyFightCharacter(*player.Connexion)
 			}
 		}
 	}
 }
 
 // GA001fc4 GA001[move]
-func OnMoveCharater(character *world.Character, packet string) {
+func OnMoveCharater(player *world.Player, packet string) {
 	if options.Options.DispatchMoves {
 		counter := 0
-		for _, c := range world.Characters {
-			if c.Name != "" && c.Id != id {
+		for _, c := range world.Players {
+			if player.IdCharDofus != player.IdCharDofus {
 				counter = counter + 1
 				fmt.Println(counter)
-				go socket.MoveChar(c, packet, counter)
+				go socket.MoveChar(*c.Connexion, packet, counter)
 			}
 		}
 	}
 }
 
 // GJK2|0|1|0|30000|4
-func OnJoinFight(character *world.Character, packet string) {
+func OnJoinFight(player *world.Player, packet string) {
 	fmt.Println("OnJoinFight")
 
-	character.Fight = &world.Fight{}
+	player.Fight = &world.Fight{}
 
-	themap := database.GetMap(character.MapId)
-	SendMap(themap)
+	themap := database.GetMap(player.MapId)
+	web.SendMap(themap)
 }
 
-func OnEndFight(character *world.Character, packet string) {
+func OnEndFight(player *world.Player, packet string) {
 	fmt.Println("OnEndFight")
-	character.Fight = nil
-	SendCharacters(world.Characters)
+	player.Fight = nil
+	web.SendCharacters(world.Players)
 }
 
-func OnMapInfo(character *world.Character, packet string) {
+func OnMapInfo(player *world.Player, packet string) {
 	splited := strings.Split(packet, "|")
 	idMap, _ := strconv.Atoi(splited[1])
-	character.MapId = idMap
+	player.MapId = idMap
 	fmt.Println("map detected", idMap)
 	themap := database.GetMap(idMap)
-	SendMap(themap)
+	web.SendMap(themap)
 }
 
 // GA0;1;90069329;ae3hen
-func OnCharacterMove(character *world.Character, packet string) {
+func OnCharacterMove(player *world.Player, packet string) {
 	splited := strings.Split(packet, ";")
 
 	fmt.Println("OnCharacterMove", splited)
 
 	if len(splited) != 4 {
-		fmt.Println("Bad character move packet length", splited)
+		fmt.Println("Bad player move packet length", splited)
 		return;
 	}
 
 	path := splited[3]
 	idChar := splited[2]
 
-	if character.Fight != nil {
+	if player.Fight != nil {
 		cellId := world.GetLastCellFromPath(path)
-		fighter := world.GetFighter(character.Fight, idChar)
-		fmt.Println("Fight: character", fighter, "move to ", cellId)
+		fighter := world.GetFighter(player.Fight, idChar)
+		fmt.Println("Fight: player", fighter, "move to ", cellId)
 		fighter.CellId = cellId
-		SendCharacters(world.Characters)
+		web.SendCharacters(world.Players)
 	}
 }
 
 // GM [+295 1 0 90069329 Lotahi 9 91^100 1 46 0,0,0,90069375 ffde34 2f8408 295a26 970,96b,96e,6c0, 408 7 3 0 0 0 0 0 20 20 0  ]
 // GM [+170 1 0 -1 236 -2 1212^100 4 a55ee0 ef9f4f -1 0,0,0,0 16 2 3 1]
-func OnSpriteInformation(character *world.Character, packet string) {
+func OnSpriteInformation(player *world.Player, packet string) {
 
 	fmt.Println("Sprite information" + packet)
 
 	entities := strings.Split(packet[3:], "|")
 
-	if character.Fight != nil {
+	if player.Fight != nil {
 
 		for _, f := range entities {
 			fmt.Println("entity" + f)
@@ -218,13 +220,13 @@ func OnSpriteInformation(character *world.Character, packet string) {
 					Name:   datas[4],
 					Level:  level,
 					TeamId: teamId,
-					IsMe: character.IdCharDofus == datas[3],
+					IsMe: player.IdCharDofus == datas[3],
 				}
 			}
 
-			fmt.Println(fighter)
-			world.UpdateFighter(character.Fight, fighter)
-			SendCharacters(world.Characters)
+			fmt.Println("fighter sprite", fighter)
+			world.UpdateFighter(player.Fight, fighter)
+			web.SendCharacters(world.Players)
 		}
 	}
 }

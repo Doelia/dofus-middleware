@@ -1,4 +1,4 @@
-package dofusmiddleware
+package main
 
 import (
 	"bufio"

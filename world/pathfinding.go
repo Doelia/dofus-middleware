@@ -92,7 +92,7 @@ func AStar(themap Map, start int, goal int) []int {
 			return reconstruct_path(cameFrom, current)
 		}
 
-		openSet = tools.Remove(openSet, current)
+		openSet = tools.RemoveIntFromSlice(openSet, current)
 
 		for _, neighbor := range getNeighbors(themap, current) {
 			// d(current,neighbor) is the weight of the edge from current to neighbor

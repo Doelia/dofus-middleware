@@ -1,4 +1,4 @@
-package dofusmiddleware
+package web
 
 import (
 	"dofusmiddleware/database"
@@ -20,7 +20,7 @@ var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { retu
 var GuiSocket *websocket.Conn
 var mutex = &sync.Mutex{}
 
-func SendCharacters(characters []world.Character) {
+func SendCharacters(characters []world.Player) {
 	message, _ := json.Marshal(characters)
 	SendPacket("CHARACTERS", string(message))
 }
@@ -73,9 +73,9 @@ func onMessage(packet string) {
 	if typepacket == "SET_CHARACTER_OPTION" {
 		fmt.Println("websocket input : SET_CHARACTER_OPTIONS " + parts[1] + " " + parts[2] + " " + parts[3])
 		if parts[2] == "OptionAutoPassTurn" {
-			world.GetChararacter(parts[1]).OptionAutoPassTurn = parts[3] == "true"
+			world.GetPlayer(parts[1]).OptionAutoPassTurn = parts[3] == "true"
 		}
-		SendCharacters(world.Characters)
+		SendCharacters(world.Players)
 	}
 	if typepacket == "PROCESS_PATH" {
 		idMap, _ := strconv.Atoi(parts[1])
@@ -89,7 +89,7 @@ func onMessage(packet string) {
 		encodedPath := world.EncodePath(themap, path)
 
 		SendPath(path)
-		socket.SendMovePacket(*world.GetAConnectedCharacter(), encodedPath)
+		socket.SendMovePacket(*world.GetAConnectedPlayer().Connexion, encodedPath)
 	}
 }
 
@@ -105,9 +105,9 @@ func SendPacket(typepacket string, content string) {
 }
 
 func OnConnect() {
-	SendCharacters(world.Characters)
+	SendCharacters(world.Players)
 	SendOptions(options.Options)
-	themap := database.GetMap(world.GetAConnectedCharacter().MapId)
+	themap := database.GetMap(world.GetAConnectedPlayer().MapId)
 	SendMap(themap)
 }
 
@@ -133,6 +133,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func StartWebSocket() {
+	fmt.Println("Start web socket server")
 	http.HandleFunc("/ws", echo)
 	log.Fatal(http.ListenAndServe("localhost:8001", nil))
 }

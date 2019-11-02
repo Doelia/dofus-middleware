@@ -71,7 +71,20 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	// write to dst what it reads from src
 	var pipe = func(src, dst net.Conn, filter func(b *[]byte, id string), sens string) {
+
+		var id string
+		if sens == "in" {
+			id = src.RemoteAddr().String()
+		} else {
+			id = dst.RemoteAddr().String()
+		}
+
 		defer func() {
+			if world.GetConnexion(id) != nil && world.GetConnexion(id).Player != nil {
+				idPlayer := world.GetConnexion(id).Player.IdCharDofus
+				world.RemovePlayer(idPlayer)
+			}
+			world.RemoveConnexion(id)
 			_ = conn.Close()
 			_ = rconn.Close()
 		}()
@@ -86,12 +99,6 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 			b := buff[:n]
 
-			var id string
-			if sens == "in" {
-				id = src.RemoteAddr().String()
-			} else {
-				id = dst.RemoteAddr().String()
-			}
 
 			if filter != nil {
 				filter(&b, id)
@@ -105,8 +112,8 @@ func (s *Server) handleConn(conn net.Conn) {
 		}
 	}
 
-	fmt.Println("Add character")
-	world.Characters = append(world.Characters, world.Character{
+	fmt.Println("new connexion")
+	world.AddConnexion(world.Connexion{
 		Id: conn.RemoteAddr().String(),
 		ConnClient: conn,
 		ConnServer: rconn,

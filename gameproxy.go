@@ -1,4 +1,4 @@
-package dofusmiddleware
+package main
 
 import (
 	"dofusmiddleware/options"
@@ -12,63 +12,64 @@ import (
 
 func StartGameProxy() {
 
-	fmt.Print("New Game proxy")
+	fmt.Println("Start Game proxy")
 
 	p := socket.Server{
 		Addr:   "127.0.0.1:5555",
 		Target: "52.19.56.159:443",
 		ModifyResponse: func(b *[]byte, id string) {
-			//fmt.Println(*b)
 
 			packets := tools.ExtractPackets(b)
 			for _, p := range packets {
 
 				strPacket := string(p)
-				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
+				strPacket = strPacket[:len(strPacket) - 1] // RemoveIntFromSlice trailing '0' byte
 
-				character := world.GetChararacter(id)
-				if character != nil && options.Options.ShowOutputPackets {
-					fmt.Println("[" + character.Name + "] server->client: " + strPacket)
+				connexion := world.GetConnexion(id)
+				player := connexion.Player
+
+				if player != nil && options.Options.ShowOutputPackets {
+					fmt.Println("[" + connexion.Player.Name + "] server->client: " + strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ALK") {
-					OnCharacterEnterInGame(character, strPacket)
+					OnCharacterEnterInGame(connexion, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GTS") {
-					OnStartTurn(character, strPacket)
+					OnStartTurn(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "PIK") {
-					OnPopupGroupInvitation(character, strPacket)
+					OnPopupGroupInvitation(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ERK") {
-					OnPopupExchange(character, strPacket)
+					OnPopupExchange(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "Gt") {
-					OnFightOpened(character, strPacket)
+					OnFightOpened(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GM") {
-					OnSpriteInformation(character, strPacket)
+					OnSpriteInformation(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GJK") {
-					OnJoinFight(character, strPacket)
+					OnJoinFight(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GE") {
-					OnEndFight(character, strPacket)
+					OnEndFight(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GDM") {
-					OnMapInfo(character, strPacket)
+					OnMapInfo(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GA0") {
-					OnCharacterMove(character, strPacket)
+					OnCharacterMove(player, strPacket)
 				}
 			}
 
@@ -77,22 +78,23 @@ func StartGameProxy() {
 
 			bytess := make([]byte, len(*b))
 			copy(bytess, *b)
-			bytess = bytess[:len(bytess) - 1] // Remove trailing '\n' byte
+			bytess = bytess[:len(bytess) - 1] // RemoveIntFromSlice trailing '\n' byte
 			bytess[len(bytess) - 1] = 0
 
 			packets := tools.ExtractPackets(&bytess)
 			for _, p := range packets {
 
 				strPacket := string(p)
-				strPacket = strPacket[:len(strPacket) - 1] // Remove trailing '0' byte
+				strPacket = strPacket[:len(strPacket) - 1] // RemoveIntFromSlice trailing '0' byte
 
-				character := world.GetChararacter(id)
-				if character != nil && options.Options.ShowInputPackets {
-					fmt.Println("[" + character.Name + "] client->WebSocket: " + strPacket)
+				connexion := world.GetConnexion(id)
+				player := connexion.Player
+				if player != nil && options.Options.ShowInputPackets {
+					fmt.Println("[" + connexion.Player.Name + "] client->WebSocket: " + strPacket)
 				}
 
 				if strings.HasPrefix(strPacket, "GA001") {
-					OnMoveCharater(character, strPacket)
+					OnMoveCharater(player, strPacket)
 				}
 			}
 

@@ -1,4 +1,4 @@
-package dofusmiddleware
+package main
 
 import (
 	"bytes"
@@ -9,10 +9,10 @@ import (
 
 func StartRealmProxy() {
 
-	fmt.Print("StartRealmProxy")
+	fmt.Println("Start Realm proxy")
 
 	p := socket.Server{
-		Addr:   "127.0.0.1:478",
+		Addr:   "127.0.0.1:9000",
 		Target: "34.251.172.139:443",
 		ModifyResponse: func(b *[]byte, id string) {
 			packet := string(*b)
@@ -22,12 +22,11 @@ func StartRealmProxy() {
 				fmt.Println("[realm] bibly packet transform!,  token=" + token)
 				by := bytes.NewBufferString("AYK127.0.0.1:5555;" + token)
 				*b = by.Bytes()
-				//fmt.Println(*b)
 			}
 		},
 		ModifyRequest: func(b *[]byte, id string) {
 			packet := string(*b)
-			fmt.Println("[login] client->server: " + packet)
+			fmt.Println("[realm] client->server: " + packet)
 		},
 	}
 

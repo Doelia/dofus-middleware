@@ -1,9 +1,11 @@
-package dofusmiddleware
+package main
+
+import "dofusmiddleware/web"
 
 func main() {
 	go StartRealmProxy()
 	go StartGameProxy()
-	StartWebSocket()
+	web.StartWebSocket()
 	//themap := getMap(710)
 	//path := AStar(themap, 76, 433)
 	//fmt.Println("path", path)
