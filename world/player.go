@@ -1,8 +1,11 @@
 package world
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-var Players []Player
+var Players []*Player
 
 type Player struct {
 	Name string
@@ -14,9 +17,16 @@ type Player struct {
 	Connexion *Connexion
 }
 
+func (p Player) ToJson() ([]byte, error) {
+	type player Player
+	x := player(p)
+	x.Connexion = nil
+	return json.Marshal(x)
+}
+
 func RemovePlayer(id string) {
 	fmt.Println("Remove player " + id)
-	var newPlayers []Player
+	var newPlayers []*Player
 	for _, c := range Players {
 		if c.IdCharDofus != id {
 			newPlayers = append(newPlayers, c)
@@ -25,7 +35,7 @@ func RemovePlayer(id string) {
 	Players = newPlayers
 }
 
-func AddPlayer(player Player) {
+func AddPlayer(player *Player) {
 	Players = append(Players, player)
 }
 
@@ -41,7 +51,7 @@ func IsOneOfMyPlayer(name string) bool {
 func GetPlayer(search string) *Player {
 	for i, c := range Players {
 		if c.IdCharDofus == search || c.Name == search {
-			return &Players[i]
+			return Players[i]
 		}
 	}
 	return nil
@@ -50,7 +60,7 @@ func GetPlayer(search string) *Player {
 func GetAConnectedPlayer() *Player {
 	for i, c := range Players {
 		if len(c.Name) > 0 {
-			return &Players[i]
+			return Players[i]
 		}
 	}
 	return nil

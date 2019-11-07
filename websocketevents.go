@@ -12,11 +12,15 @@ import (
 )
 
 func OnSocketConnexion() {
+	fmt.Println("[websocket] new connexion.")
+	fmt.Println("Send characters...")
 	web.SendCharacters(world.Players)
+	fmt.Println("Send options...")
 	web.SendOptions(options.Options)
 
 	randomCharacter := world.GetAConnectedPlayer()
 	if randomCharacter != nil {
+		fmt.Println("send map...")
 		themap := database.GetMap(world.GetAConnectedPlayer().MapId)
 		web.SendMap(themap)
 	}
@@ -81,6 +85,8 @@ func OnProcessPath(args []string) {
 }
 
 func OnSocketMessage(packet string) {
+	fmt.Println("[websocket] client sent message", packet)
+
 	parts := strings.Split(packet, "|")
 	typepacket := parts[0]
 	if typepacket == "FOCUS" {
@@ -94,5 +100,8 @@ func OnSocketMessage(packet string) {
 	}
 	if typepacket == "PROCESS_PATH" {
 		OnProcessPath(parts)
+	}
+	if typepacket == "MOVE_PLAYER_TO_MAP" {
+		OnMoveToMapInstruction(parts)
 	}
 }

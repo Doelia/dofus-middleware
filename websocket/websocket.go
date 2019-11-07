@@ -25,8 +25,15 @@ var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { retu
 
 
 func (s *WebSocket) sendPacket(typepacket string, content string) {
+	if s == nil || s.conn == nil {
+		return
+	}
+
+	message := []byte(typepacket + "|" + content)
+	fmt.Println("web.SendMessage", string(message))
+
 	s.mutex.Lock()
-	err := s.conn.WriteMessage(websocket.TextMessage, []byte(typepacket + "|" + content))
+	err := s.conn.WriteMessage(websocket.TextMessage, message)
 	if err != nil {
 		log.Println("write error: ", err)
 	}

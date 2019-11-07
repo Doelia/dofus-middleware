@@ -33,7 +33,7 @@ func RemoveMoveTo(idPlayer string) {
 	MoveToArray = newArray
 }
 
-func AddMoveTo(idPlayer string, startMap, goalMap int) {
+func AddMoveTo(idPlayer string, startMap int, goalMap int) {
 
 	moveTo := MoveTo{
 		IdPlayer: idPlayer,

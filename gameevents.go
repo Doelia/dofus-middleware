@@ -30,7 +30,7 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 
 	fmt.Println("Player enter in game : " + name, connexion, player)
 
-	world.AddPlayer(*player)
+	world.AddPlayer(player)
 }
 
 func OnStartTurn(player *world.Player, packet string) {
@@ -137,6 +137,8 @@ func OnMapInfo(player *world.Player, packet string) {
 	idMap, _ := strconv.Atoi(splited[1])
 	player.MapId = idMap
 	fmt.Println("map detected", idMap)
+	fmt.Println("player edited", player)
+	fmt.Println("player in collection", world.GetPlayer(player.Name))
 	themap := database.GetMap(idMap)
 	web.SendMap(themap)
 }

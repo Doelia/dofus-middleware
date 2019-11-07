@@ -6,8 +6,16 @@ import (
 	"encoding/json"
 )
 
-func (s *WebSocket) SendCharacters(characters []world.Player) {
-	message, _ := json.Marshal(characters)
+func (s *WebSocket) SendCharacters(characters []*world.Player) {
+
+	// remove unwanted fields
+	var toSend []world.Player
+	for _, p := range characters {
+		p.Connexion = nil
+		toSend = append(toSend, *p)
+	}
+
+	message, _ := json.Marshal(toSend)
 	s.sendPacket("CHARACTERS", string(message))
 }
 
