@@ -33,6 +33,8 @@ func getNeighborsOfMap(idmap int) []int {
 // A* finds a path from start to goal.
 func AStarInWorld(start int, goal int) []int {
 
+	fmt.Println("AStarInWorld", start, goal)
+
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	openSet := []int{start}

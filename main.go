@@ -13,16 +13,14 @@ func main() {
 
 	go StartRealmProxy()
 	go StartGameProxy()
-
+	//
 	web = websocket.WebSocket{
 		OnConnexion: OnSocketConnexion,
 		OnMessage: OnSocketMessage,
 	}
-	web.StartWebSocket()
 
-	//themap := getMap(710)
-	//path := AStar(themap, 76, 433)
-	//fmt.Println("path", path)
+
+	web.StartWebSocket()
 	//encoded := encodePath(themap, path)
 	//fmt.Println("encoded", encoded)
 	//fmt.Println("decoded", decodePath(encoded))

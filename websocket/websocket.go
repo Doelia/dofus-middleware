@@ -64,6 +64,11 @@ func (s *WebSocket) echo(w http.ResponseWriter, r *http.Request) {
 
 func (s *WebSocket) StartWebSocket() {
 
+	if s.OnConnexion == nil || s.OnMessage == nil {
+		fmt.Println("Cant startWebSocket, OnConnexion on OnMessage handler is not defined")
+		return;
+	}
+
 	s.mutex = &sync.Mutex{}
 
 	fmt.Println("Start web socket server")

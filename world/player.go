@@ -54,6 +54,7 @@ func GetPlayer(search string) *Player {
 			return Players[i]
 		}
 	}
+	fmt.Println("cant find player", search)
 	return nil
 }
 

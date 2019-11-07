@@ -1,5 +1,7 @@
 package world
 
+import "fmt"
+
 type Trigger struct {
 	FromCellID int
 	ToMapId int
@@ -25,6 +27,7 @@ func GetMapWithTriggerWithID(idmap int) MapWithTrigger {
 }
 
 func GetCellToGoToMap(from_map int, to_map int) int {
+	fmt.Println("GetCellToGoToMap, fromMap=", from_map, "tomap=", to_map)
 	for _, trigger := range GetMapWithTriggerWithID(from_map).Triggers {
 		if trigger.ToMapId == to_map {
 			return trigger.FromCellID

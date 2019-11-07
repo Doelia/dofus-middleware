@@ -5,12 +5,10 @@ import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
 	"dofusmiddleware/socket"
-	"dofusmiddleware/windowmanagement"
 	"dofusmiddleware/world"
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
@@ -33,21 +31,6 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 	world.AddPlayer(player)
 }
 
-func OnStartTurn(player *world.Player, packet string) {
-	splited := strings.Split(packet[3:], "|")
-	idCharTurn := splited[0]
-	if player.IdCharDofus == idCharTurn {
-		fmt.Println("Start turn of " + player.Name)
-		if options.Options.FocusWindowOnCharacterTurn {
-			go windowmanagement.SwitchToCharacter(player.Name)
-		}
-		if player.OptionAutoPassTurn {
-			fmt.Println("Pass turn of " + player.Name)
-			time.Sleep(time.Duration(200) * time.Millisecond)
-			socket.SendPassTurn(*player.Connexion)
-		}
-	}
-}
 
 // PIKDoelia|Lotahi
 func OnPopupGroupInvitation(player *world.Player, packet string) {
@@ -87,8 +70,8 @@ func OnPopupExchange(player *world.Player, packet string) {
 }
 
 // Gt90069329|+90069329;Lotahi;44
-func OnFightOpened(player *world.Player, packet string) {
-	fmt.Println("[" + player.Name + "] OnFightOpened: " + packet)
+func OnFightPopOnMap(player *world.Player, packet string) {
+	fmt.Println("[" + player.Name + "] OnFightPopOnMap: " + packet)
 	splited := strings.Split(packet[2:], "|")
 	startedBy := splited[0]
 
@@ -116,21 +99,6 @@ func OnMoveCharater(player *world.Player, packet string) {
 	}
 }
 
-// GJK2|0|1|0|30000|4
-func OnJoinFight(player *world.Player, packet string) {
-	fmt.Println("OnJoinFight")
-
-	player.Fight = &world.Fight{}
-
-	themap := database.GetMap(player.MapId)
-	web.SendMap(themap)
-}
-
-func OnEndFight(player *world.Player, packet string) {
-	fmt.Println("OnEndFight")
-	player.Fight = nil
-	web.SendCharacters(world.Players)
-}
 
 func OnMapInfo(player *world.Player, packet string) {
 	splited := strings.Split(packet, "|")
@@ -140,7 +108,10 @@ func OnMapInfo(player *world.Player, packet string) {
 	fmt.Println("player edited", player)
 	fmt.Println("player in collection", world.GetPlayer(player.Name))
 	themap := database.GetMap(idMap)
+
 	web.SendMap(themap)
+
+	processMoveTo(*player)
 }
 
 // GA0;1;90069329;ae3hen
@@ -151,30 +122,56 @@ func OnCharacterMove(player *world.Player, packet string) {
 
 	if len(splited) != 4 {
 		fmt.Println("Bad player move packet length", splited)
-		return;
+		return
 	}
 
 	path := splited[3]
 	idChar := splited[2]
 
+	cellId := world.GetLastCellFromPath(path)
+
 	if player.Fight != nil {
-		cellId := world.GetLastCellFromPath(path)
 		fighter := world.GetFighter(player.Fight, idChar)
 		fmt.Println("Fight: player", fighter, "move to ", cellId)
 		fighter.CellId = cellId
-		web.SendCharacters(world.Players)
+	} else {
+		player := world.GetPlayer(idChar)
+		fmt.Println("OnMap: player", player.Name, "move to ", cellId)
+		player.CellId = cellId
 	}
+
+	web.SendCharacters(world.Players)
 }
 
 // GM [+295 1 0 90069329 Lotahi 9 91^100 1 46 0,0,0,90069375 ffde34 2f8408 295a26 970,96b,96e,6c0, 408 7 3 0 0 0 0 0 20 20 0  ]
 // GM [+170 1 0 -1 236 -2 1212^100 4 a55ee0 ef9f4f -1 0,0,0,0 16 2 3 1]
-func OnSpriteInformation(player *world.Player, packet string) {
+func OnSpriteInformation(me *world.Player, packet string) {
 
 	fmt.Println("Sprite information" + packet)
 
 	entities := strings.Split(packet[3:], "|")
 
-	if player.Fight != nil {
+	if me.Fight == nil {
+		for _, f := range entities {
+			datas := strings.Split(f, ";")
+			if len(datas) > 9 {
+				cellId, _ := strconv.Atoi(datas[0][1:])
+				Id := datas[3]
+
+				player := world.GetPlayer(Id)
+				if player != nil {
+					player.CellId = cellId
+					fmt.Println("Update player", player.Name, "cellid on map :", player.CellId)
+
+					if player.IdCharDofus == me.IdCharDofus {
+						processMoveTo(*player)
+					} else {
+						fmt.Println("IsntMe", player, me)
+					}
+				}
+			}
+		}
+	} else {
 
 		for _, f := range entities {
 			fmt.Println("entity" + f)
@@ -222,12 +219,12 @@ func OnSpriteInformation(player *world.Player, packet string) {
 					Name:   datas[4],
 					Level:  level,
 					TeamId: teamId,
-					IsMe: player.IdCharDofus == datas[3],
+					IsMe: me.IdCharDofus == datas[3],
 				}
 			}
 
 			fmt.Println("fighter sprite", fighter)
-			world.UpdateFighter(player.Fight, fighter)
+			world.UpdateFighter(me.Fight, fighter)
 			web.SendCharacters(world.Players)
 		}
 	}

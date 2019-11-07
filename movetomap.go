@@ -35,39 +35,65 @@ func RemoveMoveTo(idPlayer string) {
 
 func AddMoveTo(idPlayer string, startMap int, goalMap int) {
 
+	fmt.Println("AddMoveTo", idPlayer, startMap, goalMap)
+
+	path := world.AStarInWorld(startMap, goalMap)
+	fmt.Println("path found", path)
+
 	moveTo := MoveTo{
 		IdPlayer: idPlayer,
-		pathStack: world.AStarInWorld(startMap, goalMap)[1:],
+		pathStack: path,
 	}
-
-	fmt.Println("AddMoveTo", moveTo)
 
 	MoveToArray = append(MoveToArray, moveTo)
 }
 
-func OnArriveOnMap(player world.Player) {
+func processMoveTo(player world.Player) {
+
+	if player.MapId == 0 || player.CellId == 0 {
+		fmt.Println("[moveto] ERROR : position of player invalid", player.Name, player.MapId, player.CellId)
+	}
 
 	moveTo := GetMoveTo(player.IdCharDofus)
 	if moveTo != nil {
 
-		nextMap := moveTo.pathStack[0]
-		moveTo.pathStack = moveTo.pathStack[:1]
+		fmt.Println("[moveto] Player", player.Name, "arrive on map", player.MapId, "cellid=", player.CellId, "path=", moveTo)
 
-		if nextMap == player.MapId {
-			fmt.Println("[MoveTo]", player.Name, " is arrived on goal map", player.MapId)
-			RemoveMoveTo(player.IdCharDofus)
+		nextMap := 0
+		for index, mapID := range moveTo.pathStack {
+			if mapID == player.MapId {
+				if index == len(moveTo.pathStack) - 1 {
+					fmt.Println("[MoveTo]", player.Name, " is arrived on goal map", player.MapId)
+					RemoveMoveTo(player.IdCharDofus)
+					return
+				}
+				nextMap = moveTo.pathStack[index + 1]
+			}
+		}
+
+		if nextMap == 0 {
+			fmt.Println("[MoveTo] no next map found from map", player.MapId)
 			return
-		} else {
-			fmt.Println("[MoveTo]", player.Name, "have to", moveTo.pathStack)
-			// unstack
+		}
 
-			cell := world.GetCellToGoToMap(player.MapId, nextMap)
+		fmt.Println("[MoveTo]", player.Name, "have to go to", nextMap)
+
+		cell := world.GetCellToGoToMap(player.MapId, nextMap)
+
+		if cell != 0 {
 
 			themap := database.GetMap(player.MapId)
-			cellsPath := world.AStar(themap, player.CellId, cell)
-			pathEncoded := world.EncodePath(themap, cellsPath)
-			socket.SendMovePacket(*player.Connexion, pathEncoded)
+			cellsPath := world.AStar(themap, player.CellId, cell, true)
+			fmt.Println("[MoveTo] path to cell", cell, " is", cellsPath)
+
+			if len(cellsPath) > 0 {
+				pathEncoded := world.EncodePath(themap, cellsPath)
+				socket.SendMovePacket(*player.Connexion, pathEncoded)
+			}
+		} else {
+			fmt.Println("[MoveTo] cell to go from map", player.MapId, "to map", nextMap, "not found")
 		}
+
 	}
 
 }

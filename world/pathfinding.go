@@ -13,7 +13,7 @@ func cost(themap Map, cell int, goal int) int {
 func EncodePath(themap Map, cells []int) string {
 	encoded := ""
 
-	for i, cell := range cells[1:] {
+	for i, cell := range cells[1:] { // dont encode the start cell
 		orientation := GetDirection(themap, cells[i], cell)
 		cellEncoded := encodeOrientedCell(orientation, cell)
 		encoded = encoded + cellEncoded
@@ -26,25 +26,46 @@ func encodeOrientedCell(direction int, cellid int) string {
 	return string(tools.EncodeChar(direction)) + string(tools.EncodeChar(cellid / 64)) + string(tools.EncodeChar(cellid % 64))
 }
 
-func getNeighbors(themap Map, cell int) []int {
+func getNeighbors(themap Map, cell int, withDiagonals bool) []int {
 	var cells []int
-	c1 := GetCellOfMap(themap, cell + 15)
-	c2 := GetCellOfMap(themap, cell - 15)
-	c3 := GetCellOfMap(themap, cell - 14)
-	c4 := GetCellOfMap(themap, cell + 14)
+	c1 := GetCellOfMap(themap, cell + themap.Width)
+	c2 := GetCellOfMap(themap, cell - themap.Width)
+	c3 := GetCellOfMap(themap, cell - (themap.Width - 1))
+	c4 := GetCellOfMap(themap, cell + (themap.Width - 1))
 
-	if c1.Movement == 4 {
+	if c1.Movement > 0 {
 		cells = append(cells, c1.CellId)
 	}
-	if c2.Movement == 4 {
+	if c2.Movement > 0 {
 		cells = append(cells, c2.CellId)
 	}
-	if c3.Movement == 4 {
+	if c3.Movement > 0 {
 		cells = append(cells, c3.CellId)
 	}
-	if c4.Movement == 4 {
+	if c4.Movement > 0 {
 		cells = append(cells, c4.CellId)
 	}
+
+	if withDiagonals {
+		c5 := GetCellOfMap(themap, cell + 1)
+		c6 := GetCellOfMap(themap, cell - 1)
+		c7 := GetCellOfMap(themap, cell - (themap.Width * 2) + 1)
+		c8 := GetCellOfMap(themap, cell + (themap.Width * 2) - 1)
+
+		if c5.Movement > 0 {
+			cells = append(cells, c5.CellId)
+		}
+		if c6.Movement > 0 {
+			cells = append(cells, c6.CellId)
+		}
+		if c7.Movement > 0 {
+			cells = append(cells, c7.CellId)
+		}
+		if c8.Movement > 0 {
+			cells = append(cells, c8.CellId)
+		}
+	}
+
 	return cells
 }
 
@@ -58,8 +79,14 @@ func reconstruct_path(cameFrom map[int]int, current int) []int {
 	return total_path
 }
 
+var Visited []int
+
 // A* finds a path from start to goal.
-func AStar(themap Map, start int, goal int) []int {
+func AStar(themap Map, start int, goal int, withDiagonals bool) []int {
+
+	Visited = []int{}
+
+	fmt.Println("AStar into map", themap.MapId, "from cell", start, "to cell", goal)
 
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
@@ -92,9 +119,11 @@ func AStar(themap Map, start int, goal int) []int {
 			return reconstruct_path(cameFrom, current)
 		}
 
+		Visited = append(Visited, current)
+
 		openSet = tools.RemoveIntFromSlice(openSet, current)
 
-		for _, neighbor := range getNeighbors(themap, current) {
+		for _, neighbor := range getNeighbors(themap, current, withDiagonals) {
 			// d(current,neighbor) is the weight of the edge from current to neighbor
 			// tentative_gScore is the distance from start to the neighbor through current
 			tentative_gScore := gScore[current] + 1

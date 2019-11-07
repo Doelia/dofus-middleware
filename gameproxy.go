@@ -57,7 +57,7 @@ func StartGameProxy() {
 				}
 
 				if strings.HasPrefix(string(p), "Gt") {
-					OnFightOpened(player, strPacket)
+					OnFightPopOnMap(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GM") {

@@ -4,12 +4,15 @@ package world
 type Fighter struct {
 	Id string
 	Name string
+	IsMonster bool
+	Life int
 	Level int
 	TeamId int
+
 	CellId int
-	Life int
 	IsMe bool
-	IsMonster bool
+	PA int
+	PM int
 }
 
 type Fight struct {

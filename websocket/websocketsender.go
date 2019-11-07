@@ -11,8 +11,9 @@ func (s *WebSocket) SendCharacters(characters []*world.Player) {
 	// remove unwanted fields
 	var toSend []world.Player
 	for _, p := range characters {
-		p.Connexion = nil
-		toSend = append(toSend, *p)
+		copied := *p
+		copied.Connexion = nil
+		toSend = append(toSend, copied)
 	}
 
 	message, _ := json.Marshal(toSend)

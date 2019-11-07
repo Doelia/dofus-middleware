@@ -11,12 +11,17 @@ import (
 	"strings"
 )
 
+var MapDebug world.Map
+
 func OnSocketConnexion() {
 	fmt.Println("[websocket] new connexion.")
 	fmt.Println("Send characters...")
 	web.SendCharacters(world.Players)
 	fmt.Println("Send options...")
 	web.SendOptions(options.Options)
+
+	//web.SendMap(MapDebug) // TODO remove
+	//web.SendPath(world.Visited) // TODO remove
 
 	randomCharacter := world.GetAConnectedPlayer()
 	if randomCharacter != nil {
@@ -65,7 +70,8 @@ func OnMoveToMapInstruction(args []string) {
 	idPlayer := args[1]
 	idMap, _ := strconv.Atoi(args[2])
 	player := world.GetPlayer(idPlayer)
-	AddMoveTo(idPlayer, player.CellId, idMap)
+	AddMoveTo(player.IdCharDofus, player.MapId, idMap)
+	processMoveTo(*player)
 }
 
 func OnProcessPath(args []string) {
@@ -77,7 +83,7 @@ func OnProcessPath(args []string) {
 	fmt.Println("process path", idMap, cellStart, cellEnd)
 
 	themap := database.GetMap(idMap)
-	path := world.AStar(themap, cellStart, cellEnd)
+	path := world.AStar(themap, cellStart, cellEnd, true)
 	encodedPath := world.EncodePath(themap, path)
 
 	web.SendPath(path)
