@@ -35,6 +35,9 @@ func RemoveMoveTo(idPlayer string) {
 
 func AddMoveTo(idPlayer string, startMap int, goalMap int) {
 
+	// Remove old if exists
+	RemoveMoveTo(idPlayer)
+
 	fmt.Println("AddMoveTo", idPlayer, startMap, goalMap)
 
 	path := world.AStarInWorld(startMap, goalMap)

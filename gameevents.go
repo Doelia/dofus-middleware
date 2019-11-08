@@ -132,12 +132,16 @@ func OnCharacterMove(player *world.Player, packet string) {
 
 	if player.Fight != nil {
 		fighter := world.GetFighter(player.Fight, idChar)
-		fmt.Println("Fight: player", fighter, "move to ", cellId)
-		fighter.CellId = cellId
+		if fighter != nil { // Can be an invocation
+			fmt.Println("Fight: player", fighter, "move to ", cellId)
+			fighter.CellId = cellId
+		}
 	} else {
 		player := world.GetPlayer(idChar)
-		fmt.Println("OnMap: player", player.Name, "move to ", cellId)
-		player.CellId = cellId
+		if player != nil {
+			fmt.Println("OnMap: player", player.Name, "move to ", cellId)
+			player.CellId = cellId
+		}
 	}
 
 	web.SendCharacters(world.Players)
