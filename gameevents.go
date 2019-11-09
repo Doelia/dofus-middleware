@@ -134,13 +134,13 @@ func OnCharacterMove(player *world.Player, packet string) {
 	if player.Fight != nil {
 		fighter := player.Fight.GetFighter(idChar)
 		if fighter != nil { // Can be an invocation
-			fmt.Println("Fight: player", fighter, "move to ", cellId)
+			fmt.Println("[OnCharacterMoveOnFightMap]: player", fighter, "move to ", cellId)
 			fighter.CellId = cellId
 		}
 	} else {
 		player := world.GetPlayer(idChar)
 		if player != nil {
-			fmt.Println("OnMap: player", player.Name, "move to ", cellId)
+			fmt.Println("[OnCharacterMoveOnExplorationMap] : player", player.Name, "move to ", cellId)
 			player.CellId = cellId
 		}
 	}
@@ -152,11 +152,10 @@ func OnCharacterMove(player *world.Player, packet string) {
 // GM [+170 1 0 -1 236 -2 1212^100 4 a55ee0 ef9f4f -1 0,0,0,0 16 2 3 1]
 func OnSpriteInformation(me *world.Player, packet string) {
 
-	fmt.Println("Sprite information" + packet)
-
 	entities := strings.Split(packet[3:], "|")
 
 	if me.Fight == nil {
+		fmt.Println("[OnSpriteInformation/ExplorationMap] packet " + packet)
 		for _, f := range entities {
 			datas := strings.Split(f, ";")
 			if len(datas) > 9 {
@@ -166,7 +165,7 @@ func OnSpriteInformation(me *world.Player, packet string) {
 				player := world.GetPlayer(Id)
 				if player != nil {
 					player.CellId = cellId
-					fmt.Println("Update player", player.Name, "cellid on map :", player.CellId)
+					fmt.Println("[OnSpriteInformation/ExplorationMap] Update player", player.Name, "cellid on map :", player.CellId)
 
 					if player.IdCharDofus == me.IdCharDofus {
 						processMoveTo(*player)
@@ -177,14 +176,15 @@ func OnSpriteInformation(me *world.Player, packet string) {
 			}
 		}
 	} else {
+		fmt.Println("[OnSpriteInformation/FightMap] packet", packet)
 
 		for _, f := range entities {
-			fmt.Println("entity" + f)
+			fmt.Println("[OnSpriteInformation/FightMap] loop entity", f)
 
 			datas := strings.Split(f, ";")
 
 			if len(datas) < 8 {
-				fmt.Println("Bad len sprites")
+				fmt.Println("[OnSpriteInformation/FightMap] Bad len sprites")
 				return
 			}
 
@@ -228,7 +228,7 @@ func OnSpriteInformation(me *world.Player, packet string) {
 				}
 			}
 
-			fmt.Println("fighter sprite", fighter)
+			fmt.Println("[SpriteOnFightMap] final fighter: ", fighter)
 			world.UpdateFighter(me.Fight, fighter)
 			web.SendCharacters(world.Players)
 		}

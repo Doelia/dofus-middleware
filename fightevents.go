@@ -33,24 +33,14 @@ func OnStartTurn(player *world.Player, packet string) {
 			socket.SendPassTurn(*player.Connexion)
 		}
 		if player.OptionAutoFight {
-
-
-			time.Sleep(time.Duration(1000) * time.Millisecond)
-			AutoAttack(*player)
-
-			time.Sleep(time.Duration(1000) * time.Millisecond)
-			AutoMove(*player)
-
-			time.Sleep(time.Duration(200) * time.Millisecond)
-			socket.SendPassTurn(*player.Connexion)
-
+			go AutoPlaytTurn(*player)
 		}
 	}
 }
 
 // GJK2|0|1|0|30000|4
 func OnJoinFight(player *world.Player, packet string) {
-	fmt.Println("OnJoinFight")
+	fmt.Println("OnJoinFight", player.Name)
 
 	player.Fight = &world.Fight{}
 	player.Fight.IdPlayerStarter = player.IdCharDofus
@@ -66,8 +56,13 @@ func OnEndFight(player *world.Player, packet string) {
 }
 
 
-// GTM|90069284;0;299;6;3;252;;305|90069329;0;418;7;3;267;;418
+// GTM|-1;0;2;4;2;370;;15|90094963;0;53;6;3;371;;55
 func OnFighterUpdateInfos(player *world.Player, packet string) {
+
+	if player.Fight == nil {
+		return
+	}
+
 	fightersPackets := strings.Split(packet[3:], "|")
 	for _, fighterPacket := range fightersPackets {
 
@@ -117,7 +112,9 @@ func OnFighterDead(player *world.Player, packet string) {
 
 	idFighterDead := args[3]
 	fighterDead := player.Fight.GetFighter(idFighterDead)
-	fighterDead.Life = 0
+	if fighterDead != nil {
+		fighterDead.Life = 0
+	}
 
 	fmt.Println("fighter is dead", fighterDead)
 }

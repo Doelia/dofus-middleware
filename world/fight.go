@@ -23,6 +23,12 @@ type Fight struct {
 	Fighters []Fighter
 }
 
+type Spell struct {
+	IdSpell int
+	Portee int
+	Pa int
+}
+
 func (fight Fight) MapId() int {
 	return GetPlayer(fight.IdPlayerStarter).MapId
 }
@@ -36,8 +42,12 @@ func (fight Fight) GetFighter(fighterId string) *Fighter {
 	return nil
 }
 
-func (fighter Fighter) GetPorteeOfBestCast() int {
-	return 11
+func (fighter Fighter) GetBestSpell() Spell {
+	return Spell{
+		IdSpell: 183,
+		Portee:  6,
+		Pa:      5,
+	}
 }
 
 func (fight Fight) GetTeamOfFighter(fighterId string) int {
