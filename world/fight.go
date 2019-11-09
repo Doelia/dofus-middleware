@@ -19,10 +19,15 @@ type Fighter struct {
 }
 
 type Fight struct {
+	IdPlayerStarter string
 	Fighters []Fighter
 }
 
-func (fight *Fight) GetFighter(fighterId string) *Fighter {
+func (fight Fight) MapId() int {
+	return GetPlayer(fight.IdPlayerStarter).MapId
+}
+
+func (fight Fight) GetFighter(fighterId string) *Fighter {
 	for i, c := range fight.Fighters {
 		if c.Id == fighterId || c.Name == fighterId {
 			return &fight.Fighters[i]
@@ -31,11 +36,15 @@ func (fight *Fight) GetFighter(fighterId string) *Fighter {
 	return nil
 }
 
-func (fight *Fight) GetTeamOfFighter(fighterId string) int {
+func (fighter Fighter) GetPorteeOfBestCast() int {
+	return 11
+}
+
+func (fight Fight) GetTeamOfFighter(fighterId string) int {
 	return fight.GetFighter(fighterId).TeamId
 }
 
-func (fight *Fight) AreInSameTeam(id string, id2 string) bool {
+func (fight Fight) AreInSameTeam(id string, id2 string) bool {
 	return fight.GetTeamOfFighter(id) == fight.GetTeamOfFighter(id2)
 }
 
