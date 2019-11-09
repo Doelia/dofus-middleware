@@ -37,6 +37,9 @@ func GetMap(id int) world.Map {
 				if err != nil {
 					fmt.Println("err", err)
 				}
+				if (mapdata == "") {
+					fmt.Println("Error on map", id, "mapdata is empty")
+				}
 				themap.Cells = buildCellsFromMapData(mapdata)
 				return themap
 			}

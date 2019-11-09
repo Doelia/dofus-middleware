@@ -13,6 +13,10 @@ func cost(themap Map, cell int, goal int) int {
 func EncodePath(themap Map, cells []int) string {
 	encoded := ""
 
+	if len(cells) < 2 {
+		return ""
+	}
+
 	for i, cell := range cells[1:] { // dont encode the start cell
 		orientation := GetDirection(themap, cells[i], cell)
 		cellEncoded := encodeOrientedCell(orientation, cell)

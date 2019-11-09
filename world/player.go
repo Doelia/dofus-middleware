@@ -8,13 +8,14 @@ import (
 var Players []*Player
 
 type Player struct {
-	Name string
-	IdCharDofus string
+	Name               string
+	IdCharDofus        string
 	OptionAutoPassTurn bool
-	MapId int
-	CellId int
-	Fight *Fight
-	Connexion *Connexion
+	MapId              int
+	CellId             int
+	Fight              *Fight
+	Connexion          *Connexion
+	OptionAutoFight    bool
 }
 
 func (p Player) ToJson() ([]byte, error) {

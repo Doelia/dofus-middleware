@@ -22,6 +22,7 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 		Name: name,
 		IdCharDofus: params[0],
 		Connexion: connexion,
+		OptionAutoFight: true,
 	})
 
 	connexion.Player = player
@@ -131,7 +132,7 @@ func OnCharacterMove(player *world.Player, packet string) {
 	cellId := world.GetLastCellFromPath(path)
 
 	if player.Fight != nil {
-		fighter := world.GetFighter(player.Fight, idChar)
+		fighter := player.Fight.GetFighter(idChar)
 		if fighter != nil { // Can be an invocation
 			fmt.Println("Fight: player", fighter, "move to ", cellId)
 			fighter.CellId = cellId

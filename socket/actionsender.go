@@ -42,7 +42,7 @@ func SendConfirmAction(connexion world.Connexion) {
 }
 
 func SendPassTurn(connexion world.Connexion) {
-	sendPacket(connexion, "GT")
+	sendPacket(connexion, "Gt")
 }
 
 func sendPacket(connexion world.Connexion, packet string) {
@@ -51,5 +51,13 @@ func sendPacket(connexion world.Connexion, packet string) {
 	packetConfirm.WriteByte(0)
 	packetConfirm.WriteString("\n")
 	_, _ = connexion.ConnServer.Write(packetConfirm.Bytes())
+}
+
+
+// GA300161;270
+func SendCastSpellOnCell(connexion world.Connexion, castId int, cellId int) {
+	fmt.Println("Cast spell", castId, "on cell", cellId)
+	packet := fmt.Sprintf("GA300%d;%d", castId, cellId)
+	sendPacket(connexion, packet)
 }
 

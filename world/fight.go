@@ -9,17 +9,20 @@ type Fighter struct {
 	Level int
 	TeamId int
 
-	CellId int
 	IsMe bool
+	IsMyTeam bool
+
+	CellId int
 	PA int
 	PM int
+	MaxLife int
 }
 
 type Fight struct {
 	Fighters []Fighter
 }
 
-func GetFighter(fight *Fight, fighterId string) *Fighter {
+func (fight *Fight) GetFighter(fighterId string) *Fighter {
 	for i, c := range fight.Fighters {
 		if c.Id == fighterId || c.Name == fighterId {
 			return &fight.Fighters[i]
@@ -28,9 +31,16 @@ func GetFighter(fight *Fight, fighterId string) *Fighter {
 	return nil
 }
 
+func (fight *Fight) GetTeamOfFighter(fighterId string) int {
+	return fight.GetFighter(fighterId).TeamId
+}
+
+func (fight *Fight) AreInSameTeam(id string, id2 string) bool {
+	return fight.GetTeamOfFighter(id) == fight.GetTeamOfFighter(id2)
+}
 
 func UpdateFighter(fight *Fight, fighter Fighter) {
-	f := GetFighter(fight, fighter.Id)
+	f := fight.GetFighter(fighter.Id)
 	if f != nil {
 		f.CellId = fighter.CellId
 	} else {

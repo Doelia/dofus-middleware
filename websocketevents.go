@@ -63,6 +63,9 @@ func OnSetCharacterOption(args []string) {
 	if args[2] == "OptionAutoPassTurn" {
 		world.GetPlayer(args[1]).OptionAutoPassTurn = args[3] == "true"
 	}
+	if args[2] == "OptionAutoFight" {
+		world.GetPlayer(args[1]).OptionAutoFight = args[3] == "true"
+	}
 	web.SendCharacters(world.Players)
 }
 

@@ -51,6 +51,7 @@
         ID: {{ character.IdCharDofus }}
         <button v-on:click="focusCharacter(character.Name)">Focus</button>
         PassTurn: <input type="checkbox" :checked="character.OptionAutoPassTurn" v-on:click="setCharacterOption('OptionAutoPassTurn', character.Name, !character.OptionAutoPassTurn)">
+        Autofight: <input type="checkbox" :checked="character.OptionAutoFight" v-on:click="setCharacterOption('OptionAutoFight', character.Name, !character.OptionAutoFight)">
 
         MovePlayerToMap <input type="string" v-model="character.MoveToMapInput"/> <button v-on:click="movePlayerToMap(character.Name, character.MoveToMapInput)">Focus</button>
     </div>
@@ -81,6 +82,11 @@
             <div class="hover">
               ID: {{ cell.id }}<br>
               Movement: {{ cell.Movement }}
+                <div v-if="fight && fight.Fighters.find(f => f.CellId == cell.CellId)">
+                    Life: {{ fight.Fighters.find(f => f.CellId == cell.CellId ).Life }} / {{ fight.Fighters.find(f => f.CellId == cell.CellId ).MaxLife }}
+                      PA: {{ fight.Fighters.find(f => f.CellId == cell.CellId ).PA }}
+                    PM: {{ fight.Fighters.find(f => f.CellId == cell.CellId ).PM }}
+                </div>
             </div>
           </div>
         </div>

@@ -45,39 +45,47 @@ func StartGameProxy() {
 				}
 
 				if strings.HasPrefix(string(p), "GTS") {
-					OnStartTurn(player, strPacket)
+					go OnStartTurn(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "PIK") {
-					OnPopupGroupInvitation(player, strPacket)
+					go OnPopupGroupInvitation(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "ERK") {
-					OnPopupExchange(player, strPacket)
+					go OnPopupExchange(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "Gt") {
-					OnFightPopOnMap(player, strPacket)
+					go OnFightPopOnMap(player, strPacket)
 				}
 
 				if strings.HasPrefix(string(p), "GM") {
-					OnSpriteInformation(player, strPacket)
+					go OnSpriteInformation(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GJK") {
-					OnJoinFight(player, strPacket)
+					go OnJoinFight(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GE") {
-					OnEndFight(player, strPacket)
+					go OnEndFight(player, strPacket)
 				}
 				
 				if strings.HasPrefix(string(p), "GDM") {
 					OnMapInfo(player, strPacket)
 				}
-				
+
+				if strings.HasPrefix(string(p), "GTM") {
+					go OnFighterUpdateInfos(player, strPacket)
+				}
+
 				if strings.HasPrefix(string(p), "GA0") {
-					OnCharacterMove(player, strPacket)
+					go OnCharacterMove(player, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "GA;103") {
+					go OnFighterDead(player, strPacket)
 				}
 			}
 
