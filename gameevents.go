@@ -22,7 +22,6 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 		Name: name,
 		IdCharDofus: params[0],
 		Connexion: connexion,
-		OptionAutoFight: true,
 	})
 
 	connexion.Player = player
@@ -30,6 +29,8 @@ func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 	fmt.Println("Player enter in game : " + name, connexion, player)
 
 	world.AddPlayer(player)
+	go BotRoutine(player)
+	go player.RegenerateVitaRoutine()
 }
 
 
@@ -205,12 +206,18 @@ func OnSpriteInformation(me *world.Player, packet string) {
 						}
 					}
 				} else {
-					if me.OptionAutoFight {
+					if me.OptionAutoStartFight {
 						go OnCreateFoundOnExplorationMap(me, entity.CellId)
 					}
 				}
 
 
+			} else if len(datas) == 1 {
+				if strings.HasPrefix(datas[0], "--") {
+					fmt.Println("[OnSpriteInformation/ExplorationMap] Depop entity", datas[0])
+					idEntity, _ := strconv.Atoi(datas[0][1:])
+					me.RemoveEntityOnMap(idEntity)
+				}
 			}
 		}
 	} else {

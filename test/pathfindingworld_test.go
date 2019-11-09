@@ -16,3 +16,11 @@ func TestPathFindingWorld(t *testing.T) {
 		t.Error("Failed, wanted=", wanted, "path=", got)
 	}
 }
+
+func TestGetMapFromPosition(t *testing.T) {
+	got := database.GetMapIdFromPosition("5,-30")
+	wanted := 1868
+	if wanted != got {
+		t.Error("Failed, wanted=", wanted, "path=", got)
+	}
+}

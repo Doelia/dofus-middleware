@@ -17,15 +17,25 @@ func (p *Player) AddEntityOnMap(e EntityOnMap) {
 	p.EntitiesOnSameMap = append(p.EntitiesOnSameMap, e)
 }
 
+func (p *Player) RemoveEntityOnMap(id int) {
+	var nouv []EntityOnMap
+	for _, e := range p.EntitiesOnSameMap {
+		if e.Id != id {
+			nouv = append(nouv, e)
+		}
+	}
+	p.EntitiesOnSameMap = nouv
+}
+
 func (p *Player) ClearEntityOnMap() {
 	p.EntitiesOnSameMap = []EntityOnMap{}
 }
 
 func (p *Player) UpdateCellId(idEntity int, cell int) {
-	for _, e := range p.EntitiesOnSameMap {
+	for i, e := range p.EntitiesOnSameMap {
 		if e.Id == idEntity {
 			fmt.Println("UpdateCellId of entity id", idEntity, "cell id", cell)
-			e.CellId = cell
+			p.EntitiesOnSameMap[i].CellId = cell
 			return
 		}
 	}

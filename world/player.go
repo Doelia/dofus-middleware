@@ -3,6 +3,7 @@ package world
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 var Players []*Player
@@ -15,11 +16,26 @@ type Player struct {
 	CellId             int
 	Fight              *Fight
 	Connexion          *Connexion
-	OptionAutoFight    bool
 	Life 			int
 	MaxLife	int
+	IsSit bool
 
 	EntitiesOnSameMap []EntityOnMap
+
+	OptionAutoFight    bool
+	OptionAutoStartFight bool
+}
+
+func (p *Player) RegenerateVitaRoutine() {
+	for {
+		time.Sleep(time.Duration(2) * time.Second)
+		if p == nil {
+			return
+		}
+		if p.Fight == nil && p.Life < p.MaxLife {
+			p.Life++
+		}
+	}
 }
 
 func (p Player) ToJson() ([]byte, error) {

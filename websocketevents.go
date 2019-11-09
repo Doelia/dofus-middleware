@@ -66,6 +66,9 @@ func OnSetCharacterOption(args []string) {
 	if args[2] == "OptionAutoFight" {
 		world.GetPlayer(args[1]).OptionAutoFight = args[3] == "true"
 	}
+	if args[2] == "OptionAutoStartFight" {
+		world.GetPlayer(args[1]).OptionAutoStartFight = args[3] == "true"
+	}
 	web.SendCharacters(world.Players)
 }
 
@@ -73,8 +76,23 @@ func OnMoveToMapInstruction(args []string) {
 	idPlayer := args[1]
 	idMap, _ := strconv.Atoi(args[2])
 	player := world.GetPlayer(idPlayer)
+	if idMap == 0 {
+		fmt.Println("[websocket] cant find map id", idMap)
+		return
+	}
 	AddMoveTo(player.IdCharDofus, player.MapId, idMap)
 	processMoveTo(*player)
+}
+
+func OnMoveToMapPositionInstruction(args []string) {
+	idPlayer := args[1]
+	position := args[2]
+	idMap := database.GetMapIdFromPosition(position)
+	if idMap != 0 {
+		player := world.GetPlayer(idPlayer)
+		AddMoveTo(player.IdCharDofus, player.MapId, idMap)
+		processMoveTo(*player)
+	}
 }
 
 func OnProcessPath(args []string) {
@@ -110,7 +128,10 @@ func OnSocketMessage(packet string) {
 	if typepacket == "PROCESS_PATH" {
 		OnProcessPath(parts)
 	}
-	if typepacket == "MOVE_PLAYER_TO_MAP" {
+	if typepacket == "MOVE_PLAYER_TO_MAP_ID" {
 		OnMoveToMapInstruction(parts)
+	}
+	if typepacket == "MOVE_PLAYER_TO_MAP_POSITION" {
+		OnMoveToMapPositionInstruction(parts)
 	}
 }

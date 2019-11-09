@@ -142,24 +142,37 @@ func AutoMove(player world.Player) {
 
 func OnCreateFoundOnExplorationMap(player *world.Player, cellId int) {
 	fmt.Println("[OnCreateFoundOnExplorationMap] cell=", cellId)
-
 	time.Sleep(time.Duration(400) * time.Millisecond)
+	SearchNextFight(player)
+}
 
+func BotRoutine(p *world.Player) {
+	for {
+		time.Sleep(time.Duration(5) * time.Second)
+
+		if p == nil {
+			break
+		}
+
+		if p.OptionAutoStartFight {
+			fmt.Println("Execution BotRoutine of", p)
+			go SearchNextFight(p)
+		}
+	}
 }
 
 func SearchNextFight(p *world.Player) {
 
-	fmt.Println("[SearchNextFight] Start...")
-	time.Sleep(time.Duration(1000) * time.Millisecond)
-	if !p.OptionAutoFight {
+	if !p.OptionAutoStartFight {
 		return
 	}
 
 	if p.Life < p.MaxLife {
 		fmt.Println("[SearchNextFight] Life not full. Wait for it.", p)
-		go socket.SendSit(*p.Connexion)
-		timeToWait := p.MaxLife - p.Life
-		time.Sleep(time.Duration(timeToWait) * time.Second)
+		//go socket.SendSit(*p.Connexion)
+		//timeToWait := p.MaxLife - p.Life
+		//time.Sleep(time.Duration(timeToWait) * time.Second * 2)
+		return
 	}
 
 	if p.Fight == nil {
@@ -173,8 +186,7 @@ func SearchNextFight(p *world.Player) {
 				socket.SendMovePacket(*p.Connexion, pathEncoded)
 			}
 		} else {
-			fmt.Println("[SearchNexFight] No entity. Wait for next.")
-			SearchNextFight(p)
+			fmt.Println("[SearchNexFight] No entity found.")
 		}
 	} else {
 		fmt.Println("[SearchNexFight] In fight.")

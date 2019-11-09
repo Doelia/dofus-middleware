@@ -59,9 +59,15 @@ var app = new Vue({
         processPath: function(start, end) {
             ws.send('PROCESS_PATH|' + app.map.MapId + '|' + start + '|' + end);
         },
-        movePlayerToMap: function(playerName, MapId) {
-            console.log('movePlayerToMap', playerName, MapId);
-            ws.send('MOVE_PLAYER_TO_MAP|' + playerName + '|' + MapId)
+        movePlayerToMap: function(playerName, str) {
+            console.log('movePlayerToMap', playerName, str);
+
+            if (str.includes(',')) {
+                ws.send('MOVE_PLAYER_TO_MAP_POSITION|' + playerName + '|' + str)
+            } else {
+                ws.send('MOVE_PLAYER_TO_MAP_ID|' + playerName + '|' + str)
+            }
+
         }
     }
 })

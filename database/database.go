@@ -16,8 +16,45 @@ var database *sql.DB
 
 var mapCache map[int]world.Map
 
-func GetMapIdFromPosition(position string) {
-	// TODO
+func GetMapIdFromPosition(position string) int {
+	var err error
+
+	database, err = sql.Open("sqlite3", options.ConfigSqlLitePath)
+
+	like := position + "%"
+	count := 0
+	idMap := 0
+
+	if err != nil {
+		fmt.Println("err", err)
+	} else {
+		defer database.Close()
+
+		rows, err2 := database.Query("SELECT id FROM maps where mapPos like ?", like)
+
+		if err2 != nil {
+			fmt.Println("err", err2)
+		} else {
+			for rows.Next() {
+				count++
+				err = rows.Scan(&idMap)
+				if err != nil {
+					fmt.Println("err", err)
+				}
+			}
+		}
+	}
+
+	if count > 1 {
+		fmt.Println("Multiple map for this position", position)
+		return 0
+	} else if count == 1 {
+		fmt.Println("[database] map id for position", position, "is", idMap)
+		return idMap
+	} else {
+		fmt.Println("no map found for this position", position)
+		return 0
+	}
 }
 
 func GetMap(id int) world.Map {
