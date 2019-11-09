@@ -21,6 +21,10 @@ type Cell struct {
 	Active bool
 }
 
+func (m Map) IsATriggerCell(id int) bool {
+	return GetCellOfMap(m, id).Movement == 2
+}
+
 func GetCellOfMap(themap Map, cellid int) Cell {
 	for _, c := range themap.Cells {
 		if c.CellId == cellid {

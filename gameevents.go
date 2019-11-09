@@ -100,19 +100,34 @@ func OnMoveCharater(player *world.Player, packet string) {
 	}
 }
 
+// GA;1;-1;acHdcV
+func OnEntityMove(player *world.Player, packet string) {
+	fmt.Println("OnEntityMove", packet)
+	if player.Fight == nil {
+		splited := strings.Split(packet, ";")
+		cellId := world.GetLastCellFromPath(splited[3])
+		idEntity, _ := strconv.Atoi(splited[2])
+		player.UpdateCellId(idEntity, cellId)
+	}
+}
+
 
 func OnMapInfo(player *world.Player, packet string) {
 	splited := strings.Split(packet, "|")
 	idMap, _ := strconv.Atoi(splited[1])
-	player.MapId = idMap
-	fmt.Println("map detected", idMap)
-	fmt.Println("player edited", player)
-	fmt.Println("player in collection", world.GetPlayer(player.Name))
+	fmt.Println("[OnMapInfo] Map detected", idMap)
 	themap := database.GetMap(idMap)
+
+	player.MapId = idMap
+	player.ClearEntityOnMap()
 
 	web.SendMap(themap)
 
 	processMoveTo(*player)
+
+	if player.OptionAutoFight {
+		go SearchNextFight(player)
+	}
 }
 
 // GA0;1;90069329;ae3hen
@@ -148,31 +163,54 @@ func OnCharacterMove(player *world.Player, packet string) {
 	web.SendCharacters(world.Players)
 }
 
+// As10264,7300,10500|2540|0|0|0~0,0,0,0,0,0|85,85|9810,10000|30|100|6,0,0,0,6|3,0,0,0,3|30,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|1,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|20
+func OnPlayerStats(me *world.Player, packet string) {
+	parts := strings.Split(packet[2:], "|")
+	lifePart := strings.Split(parts[5], ",")
+
+	me.Life, _ = strconv.Atoi(lifePart[0])
+	me.MaxLife, _ = strconv.Atoi(lifePart[1])
+}
+
 // GM [+295 1 0 90069329 Lotahi 9 91^100 1 46 0,0,0,90069375 ffde34 2f8408 295a26 970,96b,96e,6c0, 408 7 3 0 0 0 0 0 20 20 0  ]
 // GM [+170 1 0 -1 236 -2 1212^100 4 a55ee0 ef9f4f -1 0,0,0,0 16 2 3 1]
+// GM group on exploration map : [+193 5 0 -1 970,970,979 -3 1558^110,1558^100,1560^90 6,4,2 -1,-1,-1 0,0,0,0 -1,-1,-1 0,0,0,0 -1,-1,-1 0,0,0,0 ]
 func OnSpriteInformation(me *world.Player, packet string) {
 
 	entities := strings.Split(packet[3:], "|")
 
 	if me.Fight == nil {
-		fmt.Println("[OnSpriteInformation/ExplorationMap] packet " + packet)
 		for _, f := range entities {
 			datas := strings.Split(f, ";")
+
+			fmt.Println("[OnSpriteInformation/ExplorationMap] entity ", datas)
+
 			if len(datas) > 9 {
-				cellId, _ := strconv.Atoi(datas[0][1:])
-				Id := datas[3]
 
-				player := world.GetPlayer(Id)
-				if player != nil {
-					player.CellId = cellId
-					fmt.Println("[OnSpriteInformation/ExplorationMap] Update player", player.Name, "cellid on map :", player.CellId)
+				entity := world.BuildEntity(datas)
+				fmt.Println("[[OnSpriteInformation/ExplorationMap] entity builded", entity)
 
-					if player.IdCharDofus == me.IdCharDofus {
-						processMoveTo(*player)
-					} else {
-						fmt.Println("IsntMe", player, me)
+				me.AddEntityOnMap(entity)
+
+				if entity.Id > 0 {
+					player := world.GetPlayer(strconv.Itoa(entity.Id))
+					if player != nil {
+						player.CellId = entity.CellId
+						fmt.Println("[OnSpriteInformation/ExplorationMap] Update player", player.Name, "cellid on map :", player.CellId)
+
+						if player.IdCharDofus == me.IdCharDofus {
+							processMoveTo(*player)
+						} else {
+							fmt.Println("IsntMe", player, me)
+						}
+					}
+				} else {
+					if me.OptionAutoFight {
+						go OnCreateFoundOnExplorationMap(me, entity.CellId)
 					}
 				}
+
+
 			}
 		}
 	} else {

@@ -13,7 +13,22 @@ import (
 
 var database *sql.DB
 
+
+var mapCache map[int]world.Map
+
+func GetMapIdFromPosition(position string) {
+	// TODO
+}
+
 func GetMap(id int) world.Map {
+
+	if mapCache != nil {
+		if val, ok := mapCache[id]; ok {
+			return val
+		}
+	} else {
+		mapCache = make(map[int]world.Map)
+	}
 
 	fmt.Println("load map", id, "from database")
 
@@ -41,6 +56,8 @@ func GetMap(id int) world.Map {
 					fmt.Println("Error on map", id, "mapdata is empty")
 				}
 				themap.Cells = buildCellsFromMapData(mapdata)
+
+				mapCache[themap.MapId] = themap
 				return themap
 			}
 		}

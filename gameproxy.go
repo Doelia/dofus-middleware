@@ -84,8 +84,16 @@ func StartGameProxy() {
 					OnCharacterMove(player, strPacket)
 				}
 
+				if strings.HasPrefix(string(p), "GA;1") {
+					OnEntityMove(player, strPacket)
+				}
+
 				if strings.HasPrefix(string(p), "GA;103") {
 					OnFighterDead(player, strPacket)
+				}
+
+				if strings.HasPrefix(string(p), "As") {
+					OnPlayerStats(player, strPacket)
 				}
 			}
 

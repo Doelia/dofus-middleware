@@ -45,8 +45,8 @@ func (fight Fight) GetFighter(fighterId string) *Fighter {
 func (fighter Fighter) GetBestSpell() Spell {
 	return Spell{
 		IdSpell: 183,
-		Portee:  6,
-		Pa:      5,
+		Portee:  8,
+		Pa:      4,
 	}
 }
 

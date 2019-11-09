@@ -92,6 +92,10 @@ func AStar(themap Map, start int, goal int, withDiagonals bool) []int {
 
 	fmt.Println("AStar into map", themap.MapId, "from cell", start, "to cell", goal)
 
+	if themap.MapId == 0 {
+		return []int{}
+	}
+
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	openSet := []int{start}

@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
@@ -47,6 +46,11 @@ func OnJoinFight(player *world.Player, packet string) {
 
 	themap := database.GetMap(player.MapId)
 	web.SendMap(themap)
+
+	if player.OptionAutoFight {
+		go AutoReady(*player)
+	}
+
 }
 
 func OnEndFight(player *world.Player, packet string) {

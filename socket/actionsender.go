@@ -61,3 +61,7 @@ func SendCastSpellOnCell(connexion world.Connexion, castId int, cellId int) {
 	sendPacket(connexion, packet)
 }
 
+
+func SendSit(c world.Connexion) {
+	sendPacket(c, "eU1")
+}

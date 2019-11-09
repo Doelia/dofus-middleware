@@ -16,6 +16,10 @@ type Player struct {
 	Fight              *Fight
 	Connexion          *Connexion
 	OptionAutoFight    bool
+	Life 			int
+	MaxLife	int
+
+	EntitiesOnSameMap []EntityOnMap
 }
 
 func (p Player) ToJson() ([]byte, error) {
@@ -55,7 +59,7 @@ func GetPlayer(search string) *Player {
 			return Players[i]
 		}
 	}
-	fmt.Println("cant find player", search)
+	fmt.Println("[PlayerCollection] cant find player", search)
 	return nil
 }
 
