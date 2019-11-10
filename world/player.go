@@ -6,11 +6,17 @@ import (
 	"time"
 )
 
+const (
+	CLASS_IOP = 3
+	CLASS_FECA = 4,
+)
+
 var Players []*Player
 
 type Player struct {
 	Name               string
 	IdCharDofus        string
+	Class int
 	OptionAutoPassTurn bool
 	MapId              int
 	CellId             int
@@ -33,7 +39,11 @@ func (p *Player) RegenerateVitaRoutine() {
 			return
 		}
 		if p.Fight == nil && p.Life < p.MaxLife {
-			p.Life++
+			if p.IsSit {
+				p.Life += 2
+			} else {
+				p.Life += 1
+			}
 		}
 	}
 }

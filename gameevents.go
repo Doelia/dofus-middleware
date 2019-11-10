@@ -5,10 +5,12 @@ import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
 	"dofusmiddleware/socket"
+	"dofusmiddleware/tools"
 	"dofusmiddleware/world"
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
@@ -79,10 +81,10 @@ func OnFightPopOnMap(player *world.Player, packet string) {
 
 	if world.IsOneOfMyPlayer(startedBy) {
 		if options.Options.AutoJoinFight {
-			go socket.JoinFightCharacter(*player.Connexion, startedBy)
-			if options.Options.AutoReadyFight {
-				go socket.ReadyFightCharacter(*player.Connexion)
-			}
+			go func () {
+				time.Sleep(time.Duration(tools.RandomBetween(200, 4000)) * time.Millisecond)
+				socket.JoinFightCharacter(*player.Connexion, startedBy)
+			} ()
 		}
 	}
 }
@@ -157,11 +159,18 @@ func OnCharacterMove(player *world.Player, packet string) {
 		player := world.GetPlayer(idChar)
 		if player != nil {
 			fmt.Println("[OnCharacterMoveOnExplorationMap] : player", player.Name, "move to ", cellId)
+			player.IsSit = false
 			player.CellId = cellId
 		}
 	}
 
 	web.SendCharacters(world.Players)
+}
+
+// ILS1000 sit
+// ILS2000 debout
+func OnPlayerChangePosition(me *world.Player, packet string) {
+	me.IsSit = packet == "ILS1000"
 }
 
 // As10264,7300,10500|2540|0|0|0~0,0,0,0,0,0|85,85|9810,10000|30|100|6,0,0,0,6|3,0,0,0,3|30,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|1,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|0,0,0,0|20
@@ -207,7 +216,11 @@ func OnSpriteInformation(me *world.Player, packet string) {
 					}
 				} else {
 					if me.OptionAutoStartFight {
-						go OnCreateFoundOnExplorationMap(me, entity.CellId)
+						go func () {
+							fmt.Println("[OnCreateFoundOnExplorationMap] cell=", entity.CellId)
+							time.Sleep(time.Duration(400) * time.Millisecond)
+							SearchNextFight(me)
+						} ()
 					}
 				}
 
@@ -228,7 +241,7 @@ func OnSpriteInformation(me *world.Player, packet string) {
 
 			datas := strings.Split(f, ";")
 
-			if len(datas) < 8 {
+			if len(datas) <= 8 {
 				fmt.Println("[OnSpriteInformation/FightMap] Bad len sprites")
 				return
 			}
@@ -243,7 +256,7 @@ func OnSpriteInformation(me *world.Player, packet string) {
 			var fighter world.Fighter
 
 			if Id < 0 {
-				if len(datas) < 15 {
+				if len(datas) <= 15 {
 					fmt.Println("Bad len sprites monster")
 					return
 				}

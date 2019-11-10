@@ -5,7 +5,6 @@ type Fighter struct {
 	Id string
 	Name string
 	IsMonster bool
-	Life int
 	Level int
 	TeamId int
 
@@ -13,6 +12,7 @@ type Fighter struct {
 	IsMyTeam bool
 
 	CellId int
+	Life int
 	PA int
 	PM int
 	MaxLife int
@@ -24,10 +24,17 @@ type Fight struct {
 }
 
 type Spell struct {
+	DebugName string
 	IdSpell int
 	Portee int
 	Pa int
 }
+
+const (
+	SPELL_LANCER_DE_PIECE = 51
+	SPELL_RONCE = 183
+	SPELL_FLECHE_MAGIQUE = 161
+)
 
 func (fight Fight) MapId() int {
 	return GetPlayer(fight.IdPlayerStarter).MapId
@@ -44,7 +51,8 @@ func (fight Fight) GetFighter(fighterId string) *Fighter {
 
 func (fighter Fighter) GetBestSpell() Spell {
 	return Spell{
-		IdSpell: 183,
+		DebugName: "Ronce",
+		IdSpell: SPELL_RONCE,
 		Portee:  8,
 		Pa:      4,
 	}

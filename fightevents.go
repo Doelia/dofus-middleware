@@ -4,6 +4,7 @@ import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/options"
 	"dofusmiddleware/socket"
+	"dofusmiddleware/tools"
 	"dofusmiddleware/windowmanagement"
 	"dofusmiddleware/world"
 	"fmt"
@@ -32,7 +33,7 @@ func OnStartTurn(player *world.Player, packet string) {
 			socket.SendPassTurn(*player.Connexion)
 		}
 		if player.OptionAutoFight {
-			go AutoPlaytTurn(*player)
+			go AutoPlayTurn(*player)
 		}
 	}
 }
@@ -48,7 +49,10 @@ func OnJoinFight(player *world.Player, packet string) {
 	web.SendMap(themap)
 
 	if player.OptionAutoFight {
-		go AutoReady(*player)
+		go func() {
+			time.Sleep(time.Duration(tools.RandomBetween(200, 2000)) * time.Millisecond)
+			socket.ReadyFightCharacter(*player.Connexion)
+		}()
 	}
 
 }

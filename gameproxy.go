@@ -95,6 +95,12 @@ func StartGameProxy() {
 				if strings.HasPrefix(string(p), "As") {
 					OnPlayerStats(player, strPacket)
 				}
+
+				if strings.HasPrefix(string(p), "ILS") {
+					OnPlayerChangePosition(player, strPacket)
+				}
+
+
 			}
 
 		},

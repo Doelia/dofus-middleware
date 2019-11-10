@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"math/rand"
 )
 
 func RemoveIntFromSlice(slice []int, cell int) []int {
@@ -67,4 +68,8 @@ func Equal(a, b []int) bool {
 		}
 	}
 	return true
+}
+
+func RandomBetween(min, max int) int {
+	return rand.Intn(max - min) + min
 }

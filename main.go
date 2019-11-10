@@ -4,11 +4,15 @@ import (
 	"dofusmiddleware/database"
 	"dofusmiddleware/websocket"
 	"dofusmiddleware/world"
+	"math/rand"
+	"time"
 )
 
 var web websocket.WebSocket
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	world.MapWithTriggers = database.GetMapriggers()
 
 	go StartRealmProxy()
