@@ -7,8 +7,23 @@ import (
 )
 
 const (
-	CLASS_IOP = 3
-	CLASS_FECA = 4,
+	RACE_FECA = 1
+	RACE_OSAMODAS = 2
+	RACE_ENUTROF = 3
+	RACE_SRAM = 4
+	RACE_XELOR = 5
+	RACE_ECAFLIP = 6
+	RACE_ENIRIPSA = 7
+	RACE_IOP = 8
+	RACE_CRA = 9
+	RACE_SADIDA = 10
+	RACE_SACRIEUR = 11
+	RACE_PANDAWA = 12
+)
+
+const (
+	MALE = 0
+	FEMALE = 1
 )
 
 var Players []*Player
@@ -16,7 +31,7 @@ var Players []*Player
 type Player struct {
 	Name               string
 	IdCharDofus        string
-	Class int
+	RaceId int
 	OptionAutoPassTurn bool
 	MapId              int
 	CellId             int
@@ -30,6 +45,14 @@ type Player struct {
 
 	OptionAutoFight    bool
 	OptionAutoStartFight bool
+}
+
+// http://jb-serv.forumsactifs.net/t11-id-des-morph
+func RaceFromSprite(spriteId int) (raceId int, sexe int) {
+	if spriteId >= 10 && spriteId <= 121 {
+		return spriteId/10, sexe % 10
+	}
+	return 0, 0
 }
 
 func (p *Player) RegenerateVitaRoutine() {

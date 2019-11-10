@@ -13,17 +13,22 @@ import (
 	"time"
 )
 
+// ALK708508177|2|90069284;Doelia;51;71;380744;510022;efb57a;30e,1b0e,1b0f,,;0;609;;;
 func OnCharacterEnterInGame(connexion *world.Connexion, packet string) {
 	splited := strings.Split(packet, "|")
 	pr := splited[2]
 
 	params := strings.Split(pr, ";")
 	name := params[1]
+	idSprite, _ := strconv.Atoi(params[3])
+	idRace, _ := world.RaceFromSprite(idSprite)
 
-	player :=  &(world.Player{
+	player := &(world.Player{
 		Name: name,
 		IdCharDofus: params[0],
 		Connexion: connexion,
+		RaceId: idRace,
+		OptionAutoFight: true,
 	})
 
 	connexion.Player = player
@@ -82,7 +87,7 @@ func OnFightPopOnMap(player *world.Player, packet string) {
 	if world.IsOneOfMyPlayer(startedBy) {
 		if options.Options.AutoJoinFight {
 			go func () {
-				time.Sleep(time.Duration(tools.RandomBetween(200, 4000)) * time.Millisecond)
+				time.Sleep(time.Duration(tools.RandomBetween(200, 2000)) * time.Millisecond)
 				socket.JoinFightCharacter(*player.Connexion, startedBy)
 			} ()
 		}
@@ -270,6 +275,9 @@ func OnSpriteInformation(me *world.Player, packet string) {
 					TeamId: teamId,
 				}
 			} else {
+				idSprit, _ := strconv.Atoi(strings.Split(datas[6], "^")[0])
+				IdRace, _ := world.RaceFromSprite(idSprit)
+
 				if len(datas) < 24 {
 					fmt.Println("Bad len sprites player")
 					return
@@ -282,6 +290,7 @@ func OnSpriteInformation(me *world.Player, packet string) {
 					Name:   datas[4],
 					Level:  level,
 					TeamId: teamId,
+					RaceId: IdRace,
 					IsMe: me.IdCharDofus == datas[3],
 				}
 			}

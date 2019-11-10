@@ -15,8 +15,13 @@ func AutoPlayTurn(player world.Player) {
 	if fight != nil {
 
 		me := fight.GetFighter(player.IdCharDofus)
-		spell := me.GetBestSpell()
-		targetCell := getACellIdCastable(player, spell)
+		spell, err := me.GetBestAttackSpell()
+		fmt.Println("Best spell is for", player, "is", spell)
+		targetCell := 0
+
+		if err == nil {
+			targetCell = getACellIdCastable(player, spell)
+		}
 
 		if targetCell != 0 {
 			time.Sleep(time.Duration(300) * time.Millisecond)

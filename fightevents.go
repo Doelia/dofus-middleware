@@ -50,7 +50,7 @@ func OnJoinFight(player *world.Player, packet string) {
 
 	if player.OptionAutoFight {
 		go func() {
-			time.Sleep(time.Duration(tools.RandomBetween(200, 2000)) * time.Millisecond)
+			time.Sleep(time.Duration(tools.RandomBetween(2000, 4000)) * time.Millisecond)
 			socket.ReadyFightCharacter(*player.Connexion)
 		}()
 	}
