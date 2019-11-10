@@ -30,7 +30,7 @@ func (s *WebSocket) sendPacket(typepacket string, content string) {
 	}
 
 	message := []byte(typepacket + "|" + content)
-	fmt.Println("web.SendMessage", string(message))
+	//fmt.Println("web.SendMessage", string(message))
 
 	s.mutex.Lock()
 	err := s.conn.WriteMessage(websocket.TextMessage, message)

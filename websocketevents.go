@@ -104,7 +104,7 @@ func OnProcessPath(args []string) {
 	fmt.Println("process path", idMap, cellStart, cellEnd)
 
 	themap := database.GetMap(idMap)
-	path := world.AStar(themap, cellStart, cellEnd, true)
+	path := world.AStar(themap, nil, cellStart, cellEnd)
 	encodedPath := world.EncodePath(themap, path)
 
 	web.SendPath(path)

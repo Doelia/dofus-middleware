@@ -54,6 +54,15 @@ func (fight Fight) GetFighter(fighterId string) *Fighter {
 	return nil
 }
 
+func (fight Fight) HasEntityOnCellId(cellid int) bool {
+	for _, f := range fight.Fighters {
+		if f.CellId == cellid {
+			return true
+		}
+	}
+	return false
+}
+
 func (fighter Fighter) GetBestAttackSpell() (Spell, error) {
 	if fighter.RaceId == RACE_SADIDA {
 		return Spell{

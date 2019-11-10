@@ -86,7 +86,7 @@ func processMoveTo(player world.Player) {
 		if cell != 0 {
 
 			themap := database.GetMap(player.MapId)
-			cellsPath := world.AStar(themap, player.CellId, cell, true)
+			cellsPath := world.AStar(themap, nil, player.CellId, cell)
 			fmt.Println("[MoveTo] path to cell", cell, " is", cellsPath)
 
 			if len(cellsPath) > 0 {

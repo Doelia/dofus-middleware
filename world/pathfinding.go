@@ -30,27 +30,39 @@ func encodeOrientedCell(direction int, cellid int) string {
 	return string(tools.EncodeChar(direction)) + string(tools.EncodeChar(cellid / 64)) + string(tools.EncodeChar(cellid % 64))
 }
 
-func getNeighbors(themap Map, cell int, withDiagonals bool) []int {
+func cellIsWalkable(cell Cell, fight *Fight, goal int) bool {
+	if goal == cell.CellId {
+		return true
+	}
+
+	if fight == nil {
+		return cell.Movement == 4 // Cell movement 2 are actions cells. Cant walk on it
+	} else {
+		return cell.Movement > 0 && !fight.HasEntityOnCellId(cell.CellId)
+	}
+}
+
+func getNeighbors(themap Map, fight *Fight, cell int, goal int) []int {
 	var cells []int
 	c1 := GetCellOfMap(themap, cell + themap.Width)
 	c2 := GetCellOfMap(themap, cell - themap.Width)
 	c3 := GetCellOfMap(themap, cell - (themap.Width - 1))
 	c4 := GetCellOfMap(themap, cell + (themap.Width - 1))
 
-	if c1.Movement > 0 {
+	if cellIsWalkable(c1, fight, goal) {
 		cells = append(cells, c1.CellId)
 	}
-	if c2.Movement > 0 {
+	if cellIsWalkable(c2, fight, goal) {
 		cells = append(cells, c2.CellId)
 	}
-	if c3.Movement > 0 {
+	if cellIsWalkable(c3, fight, goal) {
 		cells = append(cells, c3.CellId)
 	}
-	if c4.Movement > 0 {
+	if cellIsWalkable(c4, fight, goal) {
 		cells = append(cells, c4.CellId)
 	}
 
-	if withDiagonals {
+	if fight == nil {
 		c5 := GetCellOfMap(themap, cell + 1)
 		c6 := GetCellOfMap(themap, cell - 1)
 		c7 := GetCellOfMap(themap, cell - (themap.Width * 2) + 1)
@@ -86,7 +98,7 @@ func reconstruct_path(cameFrom map[int]int, current int) []int {
 var Visited []int
 
 // A* finds a path from start to goal.
-func AStar(themap Map, start int, goal int, withDiagonals bool) []int {
+func AStar(themap Map, fight *Fight, start int, goal int) []int {
 
 	Visited = []int{}
 
@@ -131,7 +143,7 @@ func AStar(themap Map, start int, goal int, withDiagonals bool) []int {
 
 		openSet = tools.RemoveIntFromSlice(openSet, current)
 
-		for _, neighbor := range getNeighbors(themap, current, withDiagonals) {
+		for _, neighbor := range getNeighbors(themap, fight, current, goal) {
 			// d(current,neighbor) is the weight of the edge from current to neighbor
 			// tentative_gScore is the distance from start to the neighbor through current
 			tentative_gScore := gScore[current] + 1

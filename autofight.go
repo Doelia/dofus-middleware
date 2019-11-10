@@ -104,7 +104,7 @@ func approachToEnemy(player world.Player) string {
 	themap := database.GetMap(player.MapId)
 	//fmt.Println("[AutoMove] map is", themap.MapId)
 
-	path := world.AStar(themap, me.CellId, fighterTarget.CellId, false)
+	path := world.AStar(themap, fight, me.CellId, fighterTarget.CellId)
 	//fmt.Println("path from", me.CellId, "to", fighterTarget.CellId, "is", path)
 
 	if len(path) == 0 {

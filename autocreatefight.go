@@ -45,7 +45,7 @@ func SearchNextFight(p *world.Player) {
 		if err == nil {
 			fmt.Println("[SearchNextFight] target", target)
 			themap := database.GetMap(p.MapId)
-			path := world.AStar(themap, p.CellId, target.CellId, true)
+			path := world.AStar(themap, p.Fight, p.CellId, target.CellId)
 			pathEncoded := world.EncodePath(themap, path)
 			if pathEncoded != "" {
 				socket.SendMovePacket(*p.Connexion, pathEncoded)
